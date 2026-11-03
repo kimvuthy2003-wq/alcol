@@ -1,0 +1,21 @@
+{
+  "name": "មន្ទីរពិសោធន៍គីមីវិទ្យានិម្មិត",
+  "short_name": "Virtual Lab",
+  "description": "កម្មវិធីពិសោធន៍គីមីវិទ្យាអំពីការហៅឈ្មោះអាល់កុល និងវិធានហ្គាម៉ា",
+  "start_url": "/alcol/index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
