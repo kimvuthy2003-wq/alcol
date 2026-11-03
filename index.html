@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>មន្ទីរពិសោធន៍គីមីវិទ្យានិម្មិត - Virtual Chemistry Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f8fafc; }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border-color: #cbd5e1;}
+        
+        /* Grid Background for App 1 */
+        .chem-grid {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(rgba(56, 189, 248, 0.15) 1px, transparent 1px),
+                linear-gradient(to right, rgba(30, 41, 59, 0.6) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.6) 1px, transparent 1px);
+            background-size: 20px 20px, 40px 40px, 40px 40px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
+    
+    <!-- Header -->
+    <div class="text-center mb-10 max-w-2xl mt-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 mb-4 shadow-sm">
+            <i class="fa-solid fa-flask-vial text-3xl"></i>
+        </div>
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-800 mb-4 leading-tight">មន្ទីរពិសោធន៍គីមីវិទ្យានិម្មិត</h1>
+        <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            សូមស្វាគមន៍មកកាន់មជ្ឈមណ្ឌលពិសោធន៍! សូមជ្រើសរើសកម្មវិធីខាងក្រោមដើម្បីចាប់ផ្តើមសិក្សាអំពី ការហៅឈ្មោះអាល់កុល និង វិធានហ្គាម៉ាក្នុងប្រតិកម្មរេដុក។
+        </p>
+    </div>
+
+    <!-- Main Grid for Apps -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl w-full">
+        
+        <!-- APP 1: Alcohol Nomenclature -->
+        <a href="alcohol_nomenclature_simulator.html" class="block bg-white rounded-[2rem] overflow-hidden shadow-md border-2 border-slate-100 card-hover group cursor-pointer relative">
+            
+            <!-- Custom CSS Thumbnail 1 -->
+            <div class="h-60 chem-grid relative flex flex-col items-center justify-center overflow-hidden">
+                <!-- Floating Elements -->
+                <i class="fa-solid fa-share-nodes absolute top-4 left-4 text-slate-700 text-2xl opacity-50"></i>
+                
+                <!-- Molecule Graphic -->
+                <div class="flex items-center gap-1.5 sm:gap-2 z-10 transform scale-90 sm:scale-100">
+                    <div class="w-12 h-12 rounded-xl bg-sky-900 border-2 border-sky-400 text-sky-200 font-mono font-bold flex items-center justify-center shadow-lg shadow-sky-900/50">CH₃</div>
+                    <div class="w-6 h-1 bg-sky-400"></div>
+                    <div class="relative w-14 h-14 rounded-xl bg-slate-800 border-2 border-sky-400 text-white font-mono font-bold flex items-center justify-center shadow-lg ring-2 ring-rose-500/50">
+                        CH
+                        <div class="absolute -top-3 -right-3 w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center border border-slate-800">2</div>
+                        <!-- Top Bond to OH -->
+                        <div class="absolute -top-6 w-1 h-6 bg-rose-500"></div>
+                        <div class="absolute -top-14 w-12 h-8 rounded-lg bg-rose-600 border border-rose-300 text-white font-mono font-bold flex items-center justify-center shadow-lg">OH</div>
+                    </div>
+                    <div class="w-6 h-1 bg-slate-600"></div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-700 border-2 border-emerald-400 text-white font-mono font-bold flex items-center justify-center shadow-lg opacity-80">CH₃</div>
+                </div>
+
+                <!-- App Badge -->
+                <div class="absolute bottom-4 right-4 bg-slate-800/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-600 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                    <span class="text-xs font-semibold text-slate-200">Interactive 2D Canvas</span>
+                </div>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-6 sm:p-8">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-100 uppercase tracking-wide">Simulator</span>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800 mb-3 group-hover:text-sky-600 transition-colors">ពិសោធន៍ការហៅឈ្មោះអាល់កុល</h2>
+                <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                    កម្មវិធីសាងសង់ម៉ូលេគុល 2D និងហ្វឹកហាត់ហៅឈ្មោះម៉ូលេគុលអាល់កុលតាមប្រព័ន្ធអន្តរជាតិ (IUPAC) ដោយស្វ័យប្រវត្តិ។
+                </p>
+                <div class="flex items-center justify-between mt-auto">
+                    <span class="text-sm font-bold text-slate-800 flex items-center gap-2 group-hover:text-sky-600 transition-colors">
+                        បើកកម្មវិធីនេះ <i class="fa-solid fa-arrow-right-long transform group-hover:translate-x-1.5 transition-transform"></i>
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <!-- APP 2: Gamma Rule & Oxidation -->
+        <a href="Gamma.html" class="block bg-white rounded-[2rem] overflow-hidden shadow-md border-2 border-slate-100 card-hover group cursor-pointer relative">
+            
+            <!-- Custom CSS Thumbnail 2 -->
+            <div class="h-60 bg-gradient-to-br from-indigo-50 via-slate-50 to-amber-50 relative flex items-center justify-center overflow-hidden border-b border-slate-200">
+                
+                <!-- Background Decorations -->
+                <svg class="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M0,100 C30,70 70,70 100,100 L100,0 L0,0 Z" fill="#e0e7ff"/>
+                </svg>
+
+                <div class="relative z-10 flex items-center gap-8 sm:gap-12">
+                    <!-- Gamma Symbol -->
+                    <div class="text-7xl sm:text-8xl font-black text-amber-500 drop-shadow-md relative">
+                        γ
+                        <div class="absolute -bottom-2 -right-4 w-6 h-6 rounded-full border-2 border-red-500 flex items-center justify-center text-red-500 text-xs rotate-45">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Virtual Tube Graphic -->
+                    <div class="relative w-16 h-32 rounded-b-full border-4 border-slate-400 bg-white/70 shadow-inner overflow-hidden flex flex-col justify-end">
+                        <div class="absolute top-2 left-2 w-2 h-20 bg-white/80 rounded-full z-10"></div>
+                        <div class="w-full h-16 bg-emerald-500 border-t border-emerald-400 relative">
+                            <span class="absolute top-1 left-2 w-2 h-2 rounded-full bg-white/50 animate-bounce"></span>
+                            <span class="absolute top-4 left-8 w-1.5 h-1.5 rounded-full bg-white/50 animate-bounce" style="animation-delay: 0.2s"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- App Badge -->
+                <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-indigo-200 flex items-center gap-2 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span class="text-xs font-semibold text-indigo-900">Virtual Lab & Equation</span>
+                </div>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-6 sm:p-8">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 uppercase tracking-wide">Laboratory</span>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800 mb-3 group-hover:text-indigo-600 transition-colors">វិធានហ្គាម៉ា និងអុកស៊ីតកម្មអាល់កុល</h2>
+                <p class="text-slate-600 text-sm mb-6 leading-relaxed">
+                    អនុវត្តវិធានហ្គាម៉ា (γ) ជាមួយការថ្លឹងសមីការ និងសង្កេតការប្រែពណ៌ក្នុងប្រតិកម្មអុកស៊ីតកម្មអាល់កុលទាំង៣ថ្នាក់។
+                </p>
+                <div class="flex items-center justify-between mt-auto">
+                    <span class="text-sm font-bold text-slate-800 flex items-center gap-2 group-hover:text-indigo-600 transition-colors">
+                        បើកកម្មវិធីនេះ <i class="fa-solid fa-arrow-right-long transform group-hover:translate-x-1.5 transition-transform"></i>
+                    </span>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</body>
+</html>

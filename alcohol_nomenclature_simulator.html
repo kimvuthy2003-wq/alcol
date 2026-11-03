@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ពិសោធន៍ការហៅឈ្មោះអាល់កុល - IUPAC Alcohol Nomenclature Simulator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Kantumruy Pro for Khmer & Inter/JetBrains Mono for Formulas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Kantumruy Pro"', 'Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        lab: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155',
+                            accent: '#38bdf8',
+                            oh: '#f43f5e',
+                            methyl: '#10b981',
+                            ethyl: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Molecule Canvas Grid Pattern */
+        .chem-grid {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(rgba(56, 189, 248, 0.14) 1px, transparent 1px),
+                linear-gradient(to right, rgba(30, 41, 59, 0.5) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(30, 41, 59, 0.5) 1px, transparent 1px);
+            background-size: 24px 24px, 48px 48px, 48px 48px;
+        }
+
+        /* Interactive Slot Animations */
+        .slot-btn {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .slot-btn:hover {
+            transform: scale(1.12);
+        }
+        .slot-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Carbon Node Pulse for Main Chain */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4), 0 0 15px rgba(56, 189, 248, 0.35); }
+            50% { box-shadow: 0 0 0 6px rgba(56, 189, 248, 0), 0 0 22px rgba(56, 189, 248, 0.6); }
+        }
+        .main-chain-carbon {
+            animation: pulseGlow 2.8s infinite;
+        }
+
+        /* Functional OH Glow */
+        @keyframes ohPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.5), 0 4px 12px rgba(244, 63, 94, 0.4); }
+            50% { box-shadow: 0 0 0 5px rgba(244, 63, 94, 0), 0 4px 18px rgba(244, 63, 94, 0.65); }
+        }
+        .oh-badge {
+            animation: ohPulse 2.2s infinite;
+        }
+
+        .khmer-lh {
+            line-height: 1.75;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 via-pink-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
+                    <i class="fa-solid fa-flask-vial text-xl text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg sm:text-xl font-bold tracking-wide text-white">ពិសោធន៍ការហៅឈ្មោះក្រុមអាល់កុល</h1>
+                        <span class="hidden sm:inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                            គីមីវិទ្យា សរីរាង្គ (R-OH)
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400">Interactive Alcohol IUPAC Nomenclature Simulator — ចុចបង្កើតមេទីល ឬ ដៃអុល នៅគ្រប់ទីតាំង</p>
+                </div>
+            </div>
+
+            <!-- Mode Switcher & Quick Guide -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="toggleModeBtn" onclick="toggleQuizMode()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span id="toggleModeText">របៀបហ្វឹកហាត់សរសេរឈ្មោះ (Quiz)</span>
+                </button>
+                <button onclick="openGuideModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors">
+                    <i class="fa-solid fa-book-open text-sky-400"></i>
+                    <span class="hidden md:inline">វិធានហៅឈ្មោះ</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-5 space-y-5">
+
+        <!-- Top Control Bar: Presets & Chain Controls -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                
+                <!-- Left: Chain Length Controller -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                        <span class="text-xs sm:text-sm font-semibold text-slate-700">
+                            <i class="fa-solid fa-link text-sky-600 mr-1"></i>ប្រវែងខ្សែកាបូនគោល៖
+                        </span>
+                        <button onclick="changeChainLength(-1)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold flex items-center justify-center transition active:scale-95" title="បន្ថយកាបូន">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <span id="chainCountBadge" class="font-mono font-bold text-base text-sky-700 min-w-[3.2rem] text-center">C₃ (3)</span>
+                        <button onclick="changeChainLength(1)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold flex items-center justify-center transition active:scale-95" title="បន្ថែមកាបូន">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+
+                    <button onclick="resetToSimpleAlcohol()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left text-slate-500"></i>
+                        <span>កំណត់ឡើងវិញ</span>
+                    </button>
+
+                    <button onclick="generateRandomMolecule()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-shuffle text-indigo-600"></i>
+                        <span>បង្កើតម៉ូលេគុលចៃដន្យ</span>
+                    </button>
+                </div>
+
+                <!-- Right: Preset Examples -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+                    <span class="text-xs font-semibold text-slate-500 whitespace-nowrap mr-1">ឧទាហរណ៍គំរូ៖</span>
+                    <button onclick="loadPreset('ethanol')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 border border-slate-200 whitespace-nowrap transition">
+                        អេតាណុល
+                    </button>
+                    <button onclick="loadPreset('propan2ol')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 border border-slate-200 whitespace-nowrap transition">
+                        ប្រូប៉ាន-2-អុល
+                    </button>
+                    <button onclick="loadPreset('2methylpropan2ol')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 border border-slate-200 whitespace-nowrap transition">
+                        2-មេទីលប្រូប៉ាន-2-អុល
+                    </button>
+                    <button onclick="loadPreset('23dimethylbutan1ol')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 whitespace-nowrap transition font-semibold">
+                        2,3-ឌីមេទីលប៊ុយតាន-1-អុល
+                    </button>
+                    <button onclick="loadPreset('3ethyl4methylpentan2ol')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 border border-slate-200 whitespace-nowrap transition">
+                        3-អេទីល-4-មេទីលប៉ង់តាន-2-អុល
+                    </button>
+                    <button onclick="loadPreset('propane12diol')" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 border border-slate-200 whitespace-nowrap transition">
+                        ប្រូប៉ាន-1,2-ឌីអុល
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Interactive Molecular Builder Canvas Section -->
+        <section class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 overflow-hidden">
+            
+            <!-- Toolbar inside Canvas Header -->
+            <div class="bg-slate-950/80 border-b border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs sm:text-sm font-semibold text-slate-300 mr-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-hand-pointer text-sky-400"></i>
+                        ជ្រើសរើសក្រុមរួចចុចលើដៃកាបូន៖
+                    </span>
+
+                    <!-- Brush: -OH -->
+                    <button id="brush-OH" onclick="selectBrush('OH')" class="brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-rose-600 text-white border-rose-400 shadow-lg shadow-rose-600/30">
+                        <span class="font-mono bg-white/20 px-1.5 py-0.5 rounded text-xs">-OH</span>
+                        <span>ក្រុមអុល (អ៊ីដ្រុកស៊ីល)</span>
+                    </button>
+
+                    <!-- Brush: -CH3 -->
+                    <button id="brush-CH3" onclick="selectBrush('CH3')" class="brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-slate-800 text-emerald-300 border-slate-700 hover:border-emerald-500/50">
+                        <span class="font-mono bg-emerald-500/20 px-1.5 py-0.5 rounded text-xs text-emerald-300">-CH₃</span>
+                        <span>មេទីល (Methyl)</span>
+                    </button>
+
+                    <!-- Brush: -C2H5 -->
+                    <button id="brush-C2H5" onclick="selectBrush('C2H5')" class="brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-slate-800 text-amber-300 border-slate-700 hover:border-amber-500/50">
+                        <span class="font-mono bg-amber-500/20 px-1.5 py-0.5 rounded text-xs text-amber-300">-C₂H₅</span>
+                        <span>អេទីល (Ethyl)</span>
+                    </button>
+
+                    <!-- Brush: -H (Eraser) -->
+                    <button id="brush-H" onclick="selectBrush('H')" class="brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500">
+                        <span class="font-mono bg-slate-700 px-1.5 py-0.5 rounded text-xs text-slate-300">-H</span>
+                        <span>អ៊ីដ្រូសែន (លុបខ្នែង)</span>
+                    </button>
+                </div>
+
+                <!-- Toggle Numbering & Hydrogen Visibility -->
+                <div class="flex items-center gap-3">
+                    <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                        <input type="checkbox" id="showNumberingToggle" checked onchange="renderAll()" class="rounded text-sky-500 focus:ring-0 w-4 h-4 accent-sky-500">
+                        <span>បង្ហាញលេខខ្សែកាបូនមេ (1, 2, 3...)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Interactive 2D Structural Workspace -->
+            <div class="chem-grid relative min-h-[340px] sm:min-h-[370px] flex flex-col items-center justify-center p-4 sm:p-8 overflow-x-auto">
+                
+                <!-- Top Floating Legend -->
+                <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-4 text-xs text-slate-400">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-sky-500 inline-block ring-2 ring-sky-400/40"></span>
+                            ខ្សែកាបូនមេវែងជាងគេ
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                            បង្គុំអុល (-OH)
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                            ខ្នែងមេទីល (-CH₃)
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                            ខ្នែងអេទីល (-C₂H₅)
+                        </span>
+                    </div>
+                    <div class="text-slate-400 italic">
+                        <i class="fa-solid fa-circle-info text-sky-400 mr-1"></i>ចុចលើប្រអប់ជុំវិញកាបូនដើម្បីដាក់ ឬដកក្រុមអាតូម
+                    </div>
+                </div>
+
+                <!-- Dynamic Molecule Container -->
+                <div id="moleculeCanvas" class="my-auto py-4 px-2 flex items-center justify-center min-w-max">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+
+                <!-- Bottom Live Condensed Formula Bar -->
+                <div class="w-full mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="text-slate-400 font-medium">រូបមន្តស្ទើរលាត (Condensed)៖</span>
+                        <span id="condensedFormulaDisplay" class="font-mono font-semibold text-sky-300 bg-slate-950/90 px-3 py-1 rounded-lg border border-slate-800 tracking-wide">
+                            CH₃-CH(OH)-CH₃
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <span class="text-slate-400">រូបមន្តម៉ូលេគុល៖ </span>
+                            <span id="molecularFormulaDisplay" class="font-mono font-bold text-amber-300 bg-slate-950/90 px-2.5 py-1 rounded-lg border border-slate-800">
+                                C₃H₈O
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">ម៉ាសម៉ូលេគុល៖ </span>
+                            <span id="molarMassDisplay" class="font-mono font-bold text-emerald-300">60.10 g/mol</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice / Quiz Mode Panel (Hidden unless Quiz Mode is active) -->
+        <section id="quizPanel" class="hidden bg-gradient-to-br from-amber-50 via-white to-orange-50 rounded-2xl shadow-md border-2 border-amber-300 p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shadow">
+                        <i class="fa-solid fa-pen-ruler"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900">របៀបហ្វឹកហាត់សរសេរឈ្មោះអាល់កុល (Practice & Quiz Mode)</h2>
+                        <p class="text-xs text-slate-600">ចូរសង្កេតទម្រង់ម៉ូលេគុលខាងលើ រួចចុចប៊ូតុងពាក្យខាងក្រោម ឬវាយបញ្ចូលឈ្មោះឱ្យបានត្រឹមត្រូវ!</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-white px-3.5 py-1.5 rounded-xl border border-amber-200 text-xs sm:text-sm font-bold text-slate-700 shadow-sm">
+                        ពិន្ទុ៖ <span id="quizScore" class="text-emerald-600 font-mono">0</span> / <span id="quizTotal" class="font-mono">0</span>
+                    </div>
+                    <button onclick="nextQuizQuestion()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-forward-step"></i>
+                        <span>លំហាត់បន្ទាប់</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Answer Input & Interactive Word Chips -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                <div class="lg:col-span-8 space-y-3">
+                    <label class="block text-xs sm:text-sm font-bold text-slate-700">
+                        ១. សរសេរ ឬចុចបង្កើតឈ្មោះអាល់កុល (ជាភាសាខ្មែរ ឬ អង់គ្លេស)៖
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="quizNameInput" placeholder="ឧទាហរណ៍៖ 2,3-ឌីមេទីលប៊ុយតាន-1-អុល ឬ 2-មេទីល-1-ប្រូប៉ាណុល" 
+                            class="flex-1 px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-indigo-500 focus:outline-none font-semibold text-slate-900 text-sm sm:text-base bg-white">
+                        <button onclick="backspaceQuizInput()" class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium text-xs sm:text-sm transition" title="លុបមួយពាក្យ">
+                            <i class="fa-solid fa-delete-left"></i>
+                        </button>
+                        <button onclick="clearQuizInput()" class="px-3 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-medium text-xs sm:text-sm transition" title="សម្អាតទាំងអស់">
+                            សម្អាត
+                        </button>
+                    </div>
+
+                    <!-- Interactive Word/Number Builder Chips -->
+                    <div class="bg-white/90 p-3 rounded-xl border border-slate-200 space-y-2.5">
+                        <div class="text-xs font-semibold text-slate-500">ចុចប៊ូតុងខាងក្រោមដើម្បីផ្គុំឈ្មោះយ៉ាងរហ័ស៖</div>
+                        
+                        <!-- Numbers & Symbols -->
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-xs text-slate-400 self-center mr-1">លេខ/សញ្ញា៖</span>
+                            <button onclick="appendChip('1')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-800 font-mono font-bold text-xs border border-slate-300">1</button>
+                            <button onclick="appendChip('2')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-800 font-mono font-bold text-xs border border-slate-300">2</button>
+                            <button onclick="appendChip('3')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-800 font-mono font-bold text-xs border border-slate-300">3</button>
+                            <button onclick="appendChip('4')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-800 font-mono font-bold text-xs border border-slate-300">4</button>
+                            <button onclick="appendChip('5')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-800 font-mono font-bold text-xs border border-slate-300">5</button>
+                            <button onclick="appendChip('6')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-800 font-mono font-bold text-xs border border-slate-300">6</button>
+                            <button onclick="appendChip(',')" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-slate-900 font-mono font-bold text-xs border border-amber-300">,</button>
+                            <button onclick="appendChip('-')" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-slate-900 font-mono font-bold text-xs border border-amber-300">-</button>
+                        </div>
+
+                        <!-- Prefixes & Branches -->
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-xs text-slate-400 self-center mr-1">ខ្នែង/បុព្វបទ៖</span>
+                            <button onclick="appendChip('ឌី')" class="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold text-xs border border-purple-200">ឌី (di)</button>
+                            <button onclick="appendChip('ទ្រី')" class="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold text-xs border border-purple-200">ទ្រី (tri)</button>
+                            <button onclick="appendChip('តេត្រា')" class="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 font-semibold text-xs border border-purple-200">តេត្រា (tetra)</button>
+                            <button onclick="appendChip('មេទីល')" class="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-xs border border-emerald-200">មេទីល</button>
+                            <button onclick="appendChip('អេទីល')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-xs border border-amber-200">អេទីល</button>
+                            <button onclick="appendChip('ប្រូពីល')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold text-xs border border-amber-200">ប្រូពីល</button>
+                        </div>
+
+                        <!-- Carbon Roots & Suffixes -->
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="text-xs text-slate-400 self-center mr-1">ខ្សែមេ/បច្ច័យ៖</span>
+                            <button onclick="appendChip('មេតាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">មេតាន</button>
+                            <button onclick="appendChip('អេតាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">អេតាន</button>
+                            <button onclick="appendChip('ប្រូប៉ាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">ប្រូប៉ាន</button>
+                            <button onclick="appendChip('ប៊ុយតាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">ប៊ុយតាន</button>
+                            <button onclick="appendChip('ប៉ង់តាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">ប៉ង់តាន</button>
+                            <button onclick="appendChip('អិចសាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">អិចសាន</button>
+                            <button onclick="appendChip('អិបតាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">អិបតាន</button>
+                            <button onclick="appendChip('អុកតាន')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold text-xs border border-sky-200">អុកតាន</button>
+                            <button onclick="appendChip('អុល')" class="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs border border-rose-300">អុល (-ol)</button>
+                            <button onclick="appendChip('ប្រូប៉ាណុល')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs border border-rose-200">ប្រូប៉ាណុល</button>
+                            <button onclick="appendChip('ប៊ុយតាណុល')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs border border-rose-200">ប៊ុយតាណុល</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alcohol Class Selector & Check Button -->
+                <div class="lg:col-span-4 flex flex-col justify-between space-y-4 bg-white p-4 rounded-xl border border-slate-200">
+                    <div class="space-y-2">
+                        <label class="block text-xs sm:text-sm font-bold text-slate-700">
+                            ២. ជ្រើសរើសថ្នាក់នៃអាល់កុល (បើមាន)៖
+                        </label>
+                        <div class="grid grid-cols-2 gap-2" id="quizClassOptions">
+                            <button type="button" onclick="selectQuizClass('primary')" id="qclass-primary" class="quiz-class-btn px-3 py-2 rounded-xl border text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition text-left">
+                                ថ្នាក់ទី១ (I°)
+                            </button>
+                            <button type="button" onclick="selectQuizClass('secondary')" id="qclass-secondary" class="quiz-class-btn px-3 py-2 rounded-xl border text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition text-left">
+                                ថ្នាក់ទី២ (II°)
+                            </button>
+                            <button type="button" onclick="selectQuizClass('tertiary')" id="qclass-tertiary" class="quiz-class-btn px-3 py-2 rounded-xl border text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition text-left">
+                                ថ្នាក់ទី៣ (III°)
+                            </button>
+                            <button type="button" onclick="selectQuizClass('polyol')" id="qclass-polyol" class="quiz-class-btn px-3 py-2 rounded-xl border text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition text-left">
+                                ប៉ូលីអាល់កុល (≥2 OH)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <button onclick="checkQuizAnswer()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>ពិនិត្យចម្លើយ (Check Answer)</span>
+                        </button>
+                        <button onclick="revealQuizAnswer()" class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs transition">
+                            បង្ហាញចម្លើយត្រឹមត្រូវ និងការពន្យល់
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Feedback Banner -->
+            <div id="quizFeedbackBox" class="hidden p-4 rounded-xl border text-sm"></div>
+        </section>
+
+        <!-- Real-Time Nomenclature & Step-by-Step Analysis Panel -->
+        <section id="analysisSection" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            
+            <!-- Left Column: Main IUPAC Name Card & Alcohol Classification -->
+            <div class="lg:col-span-5 space-y-5">
+                
+                <!-- Primary Name Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-rose-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+                    
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+                            ឈ្មោះតាមប្រព័ន្ធអន្តរជាតិ (IUPAC Name)
+                        </span>
+                        <button onclick="copyIupacName()" class="text-xs text-slate-500 hover:text-sky-600 flex items-center gap-1 transition" title="ចម្លងឈ្មោះ">
+                            <i class="fa-regular fa-copy"></i>
+                            <span id="copyBtnText">ចម្លង</span>
+                        </button>
+                    </div>
+
+                    <!-- Primary Khmer Name -->
+                    <div class="my-3">
+                        <div class="text-xs text-slate-400 mb-1">ឈ្មោះផ្លូវការ (ស្តង់ដារ IUPAC)៖</div>
+                        <h2 id="khmerIupacName" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight break-words khmer-lh">
+                            ប្រូប៉ាន-2-អុល
+                        </h2>
+                    </div>
+
+                    <!-- Alternative Textbook Format -->
+                    <div id="altNameContainer" class="mb-3 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+                        <div class="text-xs text-slate-500 mb-0.5">ទម្រង់សរសេរទី២ (ក្នុងសៀវភៅពុម្ព/វិញ្ញាសា)៖</div>
+                        <div id="khmerAltName" class="text-base sm:text-lg font-bold text-indigo-700">
+                            2-ប្រូប៉ាណុល
+                        </div>
+                    </div>
+
+                    <!-- English IUPAC Name -->
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-500">ឈ្មោះភាសាអង់គ្លេស៖</span>
+                        <span id="englishIupacName" class="font-mono font-bold text-sm sm:text-base text-slate-800 bg-slate-100 px-3 py-1 rounded-lg">
+                            propan-2-ol
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Alcohol Degree / Classification Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-layer-group text-indigo-600"></i>
+                        <span>ថ្នាក់នៃអាល់កុល (Alcohol Classification)</span>
+                    </h3>
+
+                    <div id="alcoholClassBadgeContainer" class="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200 flex items-start gap-3.5">
+                        <div id="alcoholDegreeIcon" class="w-12 h-12 rounded-xl bg-indigo-600 text-white font-mono font-extrabold text-lg flex items-center justify-center shrink-0 shadow">
+                            II°
+                        </div>
+                        <div class="space-y-1">
+                            <div id="alcoholClassTitle" class="font-bold text-base text-slate-900">
+                                អាល់កុលថ្នាក់ទី២ (Secondary Alcohol)
+                            </div>
+                            <p id="alcoholClassDesc" class="text-xs sm:text-sm text-slate-600 khmer-lh">
+                                កាបូននាទី (C-OH) ភ្ជាប់ដោយផ្ទាល់ជាមួយអាតូមកាបូនចំនួន 2 ផ្សេងទៀត (ទម្រង់ R-CH(OH)-R')។
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Chemical Stability Warning (e.g., Geminal Diol) -->
+                    <div id="stabilityWarningBox" class="hidden mt-3 p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs khmer-lh flex items-start gap-2.5">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
+                        <div id="stabilityWarningText"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Step-by-Step Nomenclature Breakdown -->
+            <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-sky-600"></i>
+                        <span>ជំហាននៃការវិភាគ និងហៅឈ្មោះតាមលំដាប់លំដោយ</span>
+                    </h3>
+                    <span class="text-xs text-slate-400">វិធាន IUPAC</span>
+                </div>
+
+                <div class="space-y-3.5" id="stepsContainer">
+                    <!-- Step 1: Longest Chain -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                        <div class="w-8 h-8 rounded-lg bg-sky-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                            ១
+                        </div>
+                        <div class="space-y-1 flex-1">
+                            <div class="text-xs sm:text-sm font-bold text-slate-900">
+                                ជ្រើសរើសខ្សែកាបូនមេវែងជាងគេដែលមានផ្ទុកក្រុម -OH
+                            </div>
+                            <p id="step1Text" class="text-xs sm:text-sm text-slate-600 khmer-lh"></p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Numbering Direction -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                        <div class="w-8 h-8 rounded-lg bg-rose-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                            ២
+                        </div>
+                        <div class="space-y-1 flex-1">
+                            <div class="text-xs sm:text-sm font-bold text-slate-900">
+                                បង់លេខខ្សែកាបូនមេ (អាទិភាពឱ្យក្រុម -OH បានលេខតូចបំផុត)
+                            </div>
+                            <p id="step2Text" class="text-xs sm:text-sm text-slate-600 khmer-lh"></p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Alkyl Substituents -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                            ៣
+                        </div>
+                        <div class="space-y-1 flex-1">
+                            <div class="text-xs sm:text-sm font-bold text-slate-900">
+                                កំណត់ទីតាំង និងឈ្មោះខ្នែងអាល់គីល (មេទីល, អេទីល...)
+                            </div>
+                            <p id="step3Text" class="text-xs sm:text-sm text-slate-600 khmer-lh"></p>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Combining Name -->
+                    <div class="flex items-start gap-3.5 p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-200">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                            ៤
+                        </div>
+                        <div class="space-y-1 flex-1">
+                            <div class="text-xs sm:text-sm font-bold text-indigo-950">
+                                ផ្គុំឈ្មោះពេញលេញ (ខ្នែង + ខ្សែកាបូនមេ + ទីតាំងអុល + អុល)
+                            </div>
+                            <div id="step4FormulaBox" class="text-xs sm:text-sm text-indigo-900 font-medium khmer-lh"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Educational Quick Reference Table -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-table-list text-sky-600"></i>
+                <span>តារាងជំនួយស្មារតី៖ ឈ្មោះខ្សែកាបូនមេ និងរូបមន្តទូទៅនៃក្រុមអាល់កុល</span>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-slate-800 text-sm">១. ចំនួនកាបូនខ្សែមេ (C₁ - C₈)</div>
+                    <div class="grid grid-cols-2 gap-1 text-slate-600">
+                        <div><span class="font-mono font-bold text-sky-700">C₁</span> : មេតាន</div>
+                        <div><span class="font-mono font-bold text-sky-700">C₅</span> : ប៉ង់តាន</div>
+                        <div><span class="font-mono font-bold text-sky-700">C₂</span> : អេតាន</div>
+                        <div><span class="font-mono font-bold text-sky-700">C₆</span> : អិចសាន</div>
+                        <div><span class="font-mono font-bold text-sky-700">C₃</span> : ប្រូប៉ាន</div>
+                        <div><span class="font-mono font-bold text-sky-700">C₇</span> : អិបតាន</div>
+                        <div><span class="font-mono font-bold text-sky-700">C₄</span> : ប៊ុយតាន</div>
+                        <div><span class="font-mono font-bold text-sky-700">C₈</span> : អុកតាន</div>
+                    </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-slate-800 text-sm">២. ក្រុមខ្នែង និងបុព្វបទចំនួន</div>
+                    <ul class="space-y-1 text-slate-600">
+                        <li><span class="font-mono font-bold text-emerald-700">-CH₃</span> : មេទីល (Methyl)</li>
+                        <li><span class="font-mono font-bold text-amber-700">-C₂H₅</span> : អេទីល (Ethyl)</li>
+                        <li><span class="font-bold text-purple-700">ចំនួនខ្នែងដូចគ្នា៖</span> 2 = ឌី (di), 3 = ទ្រី (tri), 4 = តេត្រា (tetra)</li>
+                        <li>ខ្នែងផ្សេងគ្នា៖ រៀបតាមលំដាប់អក្ខរក្រមឡាតាំង (<span class="font-mono">Ethyl</span> មុន <span class="font-mono">Methyl</span>)</li>
+                    </ul>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-slate-800 text-sm">៣. ថ្នាក់ទាំង ៣ នៃម៉ូណូអាល់កុល</div>
+                    <ul class="space-y-1 text-slate-600">
+                        <li><span class="font-bold text-sky-700">ថ្នាក់ទី១ (I°)៖</span> <span class="font-mono">R-CH₂-OH</span> (C-OH ភ្ជាប់ C 1)</li>
+                        <li><span class="font-bold text-indigo-700">ថ្នាក់ទី២ (II°)៖</span> <span class="font-mono">R-CH(OH)-R'</span> (C-OH ភ្ជាប់ C 2)</li>
+                        <li><span class="font-bold text-rose-700">ថ្នាក់ទី៣ (III°)៖</span> <span class="font-mono">R₃C-OH</span> (C-OH ភ្ជាប់ C 3)</li>
+                    </ul>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-slate-800 text-sm">៤. រូបមន្តទូទៅនៃការហៅឈ្មោះ</div>
+                    <p class="text-slate-600 khmer-lh">
+                        <span class="font-semibold text-emerald-700">[លេខទីតាំងខ្នែង-ឈ្មោះខ្នែង]</span> + 
+                        <span class="font-semibold text-sky-700">[ឈ្មោះអាល់កានខ្សែមេ]</span> + 
+                        <span class="font-semibold text-rose-700">[-លេខទីតាំងអុល-អុល]</span>
+                    </p>
+                    <div class="text-slate-500 text-[11px]">
+                        ឧ. <span class="font-mono font-bold text-slate-700">2,3-ឌីមេទីលប៊ុយតាន-1-អុល</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Rules Guide -->
+    <div id="guideModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-200 p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-book text-rose-600"></i>
+                    <span>វិធាននៃការហៅឈ្មោះអាល់កុលតាមប្រព័ន្ធ IUPAC</span>
+                </h3>
+                <button onclick="closeGuideModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs sm:text-sm text-slate-700 khmer-lh">
+                <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
+                    <strong class="text-sky-900 block mb-1">វិធានទី១៖ ការជ្រើសរើសខ្សែកាបូនមេ (Main Carbon Chain)</strong>
+                    ជ្រើសរើសខ្សែកាបូនណាដែលវែងជាងគេ (មានចំនួនអាតូមកាបូនច្រើនជាងគេ) ហើយត្រូវតែមានផ្ទុកកាបូននាទីដែលភ្ជាប់ជាមួយក្រុមអ៊ីដ្រុកស៊ីល (<span class="font-mono font-bold text-rose-600">-OH</span>)។
+                    <em>ចំណាំ៖ ប្រសិនបើអ្នកដាក់ក្រុម -CH₃ ឬ -C₂H₅ នៅចុងខ្សែ នោះវានឹងបន្តប្រវែងខ្សែកាបូនមេឱ្យកាន់តែវែង!</em>
+                </div>
+                <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+                    <strong class="text-rose-900 block mb-1">វិធានទី២៖ ការបង់លេខលើខ្សែកាបូនមេ (Numbering)</strong>
+                    ត្រូវបង់លេខពីខាងណាដែលធ្វើឱ្យកាបូនភ្ជាប់ក្រុម <span class="font-mono font-bold text-rose-600">-OH</span> ទទួលបាន<strong>លេខសម្គាល់ទីតាំងតូចបំផុត</strong>។ ប្រសិនបើបង់ពីឆ្វេង និងពីស្តាំបានលេខទីតាំង -OH ស្មើគ្នា ទើបយើងពិនិត្យមើលទីតាំងខ្នែងអាល់គីលឱ្យបានលេខតូចបំផុត។
+                </div>
+                <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                    <strong class="text-emerald-900 block mb-1">វិធានទី៣៖ ការសរសេរឈ្មោះខ្នែង និងបច្ច័យ</strong>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>ប្រើសញ្ញាក្បៀស <span class="font-mono font-bold">(,)</span> ដើម្បីញែករវាងលេខ និងលេខ (ឧ. <span class="font-mono">2,3</span>)។</li>
+                        <li>ប្រើសញ្ញាត្រេ <span class="font-mono font-bold">(-)</span> ដើម្បីញែករវាងលេខ និងអក្សរ (ឧ. <span class="font-mono">2,3-ឌីមេទីល</span>)។</li>
+                        <li>បញ្ចប់ឈ្មោះដោយទីតាំងក្រុមអុល និងពាក្យ <span class="font-bold text-rose-600">អុល (-ol)</span> (ឧ. <span class="font-mono">2,3-ឌីមេទីលប៊ុយតាន-1-អុល</span> ឬ <span class="font-mono">2,3-ឌីមេទីល-1-ប៊ុយតាណុល</span>)។</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-2 flex justify-end">
+                <button onclick="closeGuideModal()" class="px-5 py-2 rounded-xl bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800">
+                    យល់ព្រម
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Engine -->
+    <script>
+        /***********************************************************************
+         * 1. STATE & CONSTANTS
+         ***********************************************************************/
+        // Backbone consists of an array of Carbon slot objects:
+        // Each backbone carbon i has:
+        //   top: 'H' | 'OH' | 'CH3' | 'C2H5'
+        //   bottom: 'H' | 'OH' | 'CH3' | 'C2H5'
+        //   left: (only for i === 0) 'H' | 'OH' | 'CH3' | 'C2H5'
+        //   right: (only for i === length - 1) 'H' | 'OH' | 'CH3' | 'C2H5'
+        let backbone = [
+            { top: 'H', bottom: 'H', left: 'H', right: null },
+            { top: 'OH', bottom: 'H', left: null, right: null },
+            { top: 'H', bottom: 'H', left: null, right: 'H' }
+        ];
+
+        let activeBrush = 'OH'; // 'OH', 'CH3', 'C2H5', 'H'
+        let isQuizMode = false;
+        let selectedQuizClass = null;
+        let quizScore = 0;
+        let quizTotal = 0;
+        let currentAnalysis = null;
+        let chipHistory = [];
+
+        const ALKANE_KH = {
+            1: 'មេតាន',
+            2: 'អេតាន',
+            3: 'ប្រូប៉ាន',
+            4: 'ប៊ុយតាន',
+            5: 'ប៉ង់តាន',
+            6: 'អិចសាន',
+            7: 'អិបតាន',
+            8: 'អុកតាន',
+            9: 'ណូណាន',
+            10: 'ដេកាន',
+            11: 'អ៊ុនដេកាន',
+            12: 'ដូដេកាន'
+        };
+
+        const ALKANOL_MERGED_KH = {
+            1: 'មេតាណុល',
+            2: 'អេតាណុល',
+            3: 'ប្រូប៉ាណុល',
+            4: 'ប៊ុយតាណុល',
+            5: 'ប៉ង់តាណុល',
+            6: 'អិចសាណុល',
+            7: 'អិបតាណុល',
+            8: 'អុកតាណុល',
+            9: 'ណូណាណុល',
+            10: 'ដេកាណុល',
+            11: 'អ៊ុនដេកាណុល',
+            12: 'ដូដេកាណុល'
+        };
+
+        const ALKANE_EN = {
+            1: 'methane',
+            2: 'ethane',
+            3: 'propane',
+            4: 'butane',
+            5: 'pentane',
+            6: 'hexane',
+            7: 'heptane',
+            8: 'octane',
+            9: 'nonane',
+            10: 'decane',
+            11: 'undecane',
+            12: 'dodecane'
+        };
+
+        const MULTIPLIER_KH = {
+            1: '',
+            2: 'ឌី',
+            3: 'ទ្រី',
+            4: 'តេត្រា',
+            5: 'ប៉ង់តា',
+            6: 'អិចសា',
+            7: 'អិបតា',
+            8: 'អុកតា'
+        };
+
+        const MULTIPLIER_EN = {
+            1: '',
+            2: 'di',
+            3: 'tri',
+            4: 'tetra',
+            5: 'penta',
+            6: 'hexa',
+            7: 'hepta',
+            8: 'octa'
+        };
+
+        /***********************************************************************
+         * 2. MOLECULAR GRAPH & TRUE IUPAC NOMENCLATURE ENGINE
+         ***********************************************************************/
+        function analyzeMolecule() {
+            // Step A: Build Carbon Graph from backbone + attached carbon groups
+            // Each node in `nodes` represents a Carbon atom:
+            // { id, label, source: { type: 'backbone'|'slot', bbIndex, dir, depth }, ohCount: 0, neighbors: [] }
+            const nodes = [];
+            const addNode = (source) => {
+                const id = nodes.length;
+                nodes.push({ id, source, ohCount: 0, neighbors: [] });
+                return id;
+            };
+            const addEdge = (u, v) => {
+                nodes[u].neighbors.push(v);
+                nodes[v].neighbors.push(u);
+            };
+
+            // 1. Create backbone carbon nodes
+            const bbNodeIds = [];
+            for (let i = 0; i < backbone.length; i++) {
+                const id = addNode({ type: 'backbone', bbIndex: i });
+                bbNodeIds.push(id);
+                if (i > 0) {
+                    addEdge(bbNodeIds[i - 1], id);
+                }
+            }
+
+            // 2. Process all 4 slots around each backbone carbon
+            const dirs = ['top', 'bottom', 'left', 'right'];
+            for (let i = 0; i < backbone.length; i++) {
+                const cId = bbNodeIds[i];
+                dirs.forEach(dir => {
+                    const val = backbone[i][dir];
+                    if (!val || val === 'H') return;
+                    if (val === 'OH') {
+                        nodes[cId].ohCount += 1;
+                    } else if (val === 'CH3') {
+                        const mId = addNode({ type: 'slot', bbIndex: i, dir, group: 'CH3', depth: 1 });
+                        addEdge(cId, mId);
+                    } else if (val === 'C2H5') {
+                        const e1Id = addNode({ type: 'slot', bbIndex: i, dir, group: 'C2H5', depth: 1 });
+                        const e2Id = addNode({ type: 'slot', bbIndex: i, dir, group: 'C2H5', depth: 2 });
+                        addEdge(cId, e1Id);
+                        addEdge(e1Id, e2Id);
+                    }
+                });
+            }
+
+            const totalCarbons = nodes.length;
+            const totalOh = nodes.reduce((sum, n) => sum + n.ohCount, 0);
+            const totalHydrogens = 2 * totalCarbons + 2; // Since it's an acyclic saturated graph (alkane/alcohol tree)
+
+            // Find all simple paths between any pair of nodes in the tree
+            const allPaths = [];
+            function dfsPath(current, target, visited, path) {
+                if (current === target) {
+                    allPaths.push([...path]);
+                    return;
+                }
+                for (const nxt of nodes[current].neighbors) {
+                    if (!visited.has(nxt)) {
+                        visited.add(nxt);
+                        path.push(nxt);
+                        dfsPath(nxt, target, visited, path);
+                        path.pop();
+                        visited.delete(nxt);
+                    }
+                }
+            }
+
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = 0; j < nodes.length; j++) {
+                    const visited = new Set([i]);
+                    dfsPath(i, j, visited, [i]);
+                }
+            }
+
+            // Evaluate every candidate path (which already includes both directions i->j and j->i)
+            // Criteria for Principal Chain in Alcohols:
+            // 1. Maximum number of -OH groups attached to carbons in the path
+            // 2. Maximum length (number of carbons in the path)
+            // 3. Lowest locant set for -OH groups (compared lexicographically at first point of difference)
+            // 4. Maximum number of substituent branches attached to the main chain
+            // 5. Lowest locant set for substituent branches
+            // 6. Alphabetical priority of substituents at first point of difference
+
+            function evaluatePath(path) {
+                const pathSet = new Set(path);
+                let ohCarbonsCount = 0;
+                let ohTotalOnChain = 0;
+                const ohLocants = [];
+
+                path.forEach((nodeId, idx) => {
+                    const locant = idx + 1;
+                    const oh = nodes[nodeId].ohCount;
+                    if (oh > 0) {
+                        ohCarbonsCount++;
+                        ohTotalOnChain += oh;
+                        for (let k = 0; k < oh; k++) {
+                            ohLocants.push(locant);
+                        }
+                    }
+                });
+
+                // Find substituents attached to carbons in `path`
+                const substituents = [];
+                path.forEach((nodeId, idx) => {
+                    const locant = idx + 1;
+                    for (const nb of nodes[nodeId].neighbors) {
+                        if (!pathSet.has(nb)) {
+                            // Collect connected component of this branch
+                            const branchNodes = [];
+                            const q = [nb];
+                            const vis = new Set([nodeId, nb]);
+                            while (q.length > 0) {
+                                const curr = q.shift();
+                                branchNodes.push(curr);
+                                for (const nextNb of nodes[curr].neighbors) {
+                                    if (!vis.has(nextNb)) {
+                                        vis.add(nextNb);
+                                        q.push(nextNb);
+                                    }
+                                }
+                            }
+                            const subInfo = classifyAlkylBranch(nb, nodeId, branchNodes, nodes);
+                            substituents.push({
+                                locant,
+                                attachedToNode: nodeId,
+                                rootBranchNode: nb,
+                                branchNodes,
+                                ...subInfo
+                            });
+                        }
+                    }
+                });
+
+                const subLocants = substituents.map(s => s.locant).sort((a, b) => a - b);
+
+                // Prefer keeping backbone carbons if completely identical by chemical symmetry
+                let backboneOverlap = 0;
+                path.forEach(nid => {
+                    if (nodes[nid].source.type === 'backbone') backboneOverlap++;
+                });
+
+                return {
+                    path,
+                    ohTotalOnChain,
+                    length: path.length,
+                    ohLocants,
+                    substituentsCount: substituents.length,
+                    subLocants,
+                    substituents,
+                    backboneOverlap
+                };
+            }
+
+            function compareLexicographical(arrA, arrB) {
+                const len = Math.min(arrA.length, arrB.length);
+                for (let i = 0; i < len; i++) {
+                    if (arrA[i] !== arrB[i]) return arrA[i] - arrB[i]; // smaller is better
+                }
+                return arrA.length - arrB.length;
+            }
+
+            let bestEval = null;
+            for (const p of allPaths) {
+                const ev = evaluatePath(p);
+                if (!bestEval) {
+                    bestEval = ev;
+                    continue;
+                }
+                // 1. Max OH on chain
+                if (ev.ohTotalOnChain !== bestEval.ohTotalOnChain) {
+                    if (ev.ohTotalOnChain > bestEval.ohTotalOnChain) bestEval = ev;
+                    continue;
+                }
+                // 2. Max chain length
+                if (ev.length !== bestEval.length) {
+                    if (ev.length > bestEval.length) bestEval = ev;
+                    continue;
+                }
+                // 3. Lowest OH locants
+                const ohCmp = compareLexicographical(ev.ohLocants, bestEval.ohLocants);
+                if (ohCmp !== 0) {
+                    if (ohCmp < 0) bestEval = ev;
+                    continue;
+                }
+                // 4. Max number of substituents
+                if (ev.substituentsCount !== bestEval.substituentsCount) {
+                    if (ev.substituentsCount > bestEval.substituentsCount) bestEval = ev;
+                    continue;
+                }
+                // 5. Lowest substituent locants
+                const subCmp = compareLexicographical(ev.subLocants, bestEval.subLocants);
+                if (subCmp !== 0) {
+                    if (subCmp < 0) bestEval = ev;
+                    continue;
+                }
+                // 6. Alphabetical substituent order
+                const evSubNames = [...ev.substituents].sort((a, b) => a.locant - b.locant).map(s => s.nameEn).join(',');
+                const bestSubNames = [...bestEval.substituents].sort((a, b) => a.locant - b.locant).map(s => s.nameEn).join(',');
+                if (evSubNames !== bestSubNames) {
+                    if (evSubNames < bestSubNames) bestEval = ev;
+                    continue;
+                }
+                // 7. Visual tie-breaker: prefer the horizontal backbone nodes
+                if (ev.backboneOverlap > bestEval.backboneOverlap) {
+                    bestEval = ev;
+                }
+            }
+
+            return buildNomenclatureResult(bestEval, nodes, totalCarbons, totalHydrogens, totalOh);
+        }
+
+        // Helper to classify an alkyl branch tree attached at `rootBranchNode`
+        function classifyAlkylBranch(rootBranchNode, parentMainNode, branchNodes, nodes) {
+            const count = branchNodes.length;
+            if (count === 1) {
+                return { nameKh: 'មេទីល', nameEn: 'methyl', key: 'methyl' };
+            }
+            if (count === 2) {
+                return { nameKh: 'អេទីល', nameEn: 'ethyl', key: 'ethyl' };
+            }
+            if (count === 3) {
+                // Check degree of rootBranchNode within branch
+                const degInBranch = nodes[rootBranchNode].neighbors.filter(n => n !== parentMainNode).length;
+                if (degInBranch === 1) {
+                    return { nameKh: 'ប្រូពីល', nameEn: 'propyl', key: 'propyl' };
+                } else {
+                    return { nameKh: 'អ៊ីសូប្រូពីល', nameEn: 'isopropyl', key: 'isopropyl' };
+                }
+            }
+            if (count === 4) {
+                return { nameKh: 'ប៊ុយទីល', nameEn: 'butyl', key: 'butyl' };
+            }
+            return { nameKh: `អាល់គីល(C${count})`, nameEn: `alkyl`, key: 'alkyl' };
+        }
+
+        function buildNomenclatureResult(bestEval, nodes, totalCarbons, totalHydrogens, totalOh) {
+            const chainLen = bestEval.length;
+            const alkaneKh = ALKANE_KH[chainLen] || `C${chainLen}`;
+            const alkaneEn = ALKANE_EN[chainLen] || `alkane`;
+            const mergedAlkanolKh = ALKANOL_MERGED_KH[chainLen] || `${alkaneKh}អុល`;
+
+            // Map each node ID in the main chain to its IUPAC number (1-indexed)
+            const nodeNumberMap = {};
+            bestEval.path.forEach((nid, idx) => {
+                nodeNumberMap[nid] = idx + 1;
+            });
+
+            // Group substituents by type (key)
+            const subGroups = {};
+            bestEval.substituents.forEach(sub => {
+                if (!subGroups[sub.key]) {
+                    subGroups[sub.key] = {
+                        nameKh: sub.nameKh,
+                        nameEn: sub.nameEn,
+                        locants: []
+                    };
+                }
+                subGroups[sub.key].locants.push(sub.locant);
+            });
+
+            // Sort substituent groups alphabetically by English name (ethyl before methyl)
+            const sortedSubKeys = Object.keys(subGroups).sort((a, b) =>
+                subGroups[a].nameEn.localeCompare(subGroups[b].nameEn)
+            );
+
+            const khSubParts = [];
+            const enSubParts = [];
+            sortedSubKeys.forEach(k => {
+                const grp = subGroups[k];
+                grp.locants.sort((a, b) => a - b);
+                const locStr = grp.locants.join(',');
+                const multKh = MULTIPLIER_KH[grp.locants.length] || '';
+                const multEn = MULTIPLIER_EN[grp.locants.length] || '';
+                khSubParts.push(`${locStr}-${multKh}${grp.nameKh}`);
+                enSubParts.push(`${locStr}-${multEn}${grp.nameEn}`);
+            });
+
+            const khPrefix = khSubParts.join('-');
+            const enPrefix = enSubParts.join('-');
+
+            // Determine Alcohol Suffix & Full Names
+            let khmerIupacName = '';
+            let khmerAltName = '';
+            let englishIupacName = '';
+            let acceptedAnswers = [];
+
+            if (totalOh === 0) {
+                // Alkane (no -OH group)
+                khmerIupacName = khPrefix ? `${khPrefix}${alkaneKh}` : alkaneKh;
+                khmerAltName = 'មិនមែនជាអាល់កុលទេ (ជាអ៊ីដ្រូកាបួឆ្អែត - អាល់កាន)';
+                englishIupacName = enPrefix ? `${enPrefix}${alkaneEn}` : alkaneEn;
+                acceptedAnswers = [khmerIupacName, englishIupacName];
+            } else {
+                const ohLocs = bestEval.ohLocants;
+                const ohLocStr = ohLocs.join(',');
+                const ohMultKh = MULTIPLIER_KH[ohLocs.length] || '';
+                const ohMultEn = MULTIPLIER_EN[ohLocs.length] || '';
+
+                if (ohLocs.length === 1) {
+                    const loc = ohLocs[0];
+                    if (chainLen <= 2 && khPrefix === '') {
+                        // Methanol / Ethanol
+                        khmerIupacName = mergedAlkanolKh;
+                        khmerAltName = `${alkaneKh}-${loc}-អុល`;
+                        englishIupacName = `${alkaneEn.slice(0, -1)}ol`;
+                        acceptedAnswers = [
+                            mergedAlkanolKh,
+                            `${alkaneKh}-1-អុល`,
+                            `${alkaneKh}អុល`,
+                            `1-${mergedAlkanolKh}`,
+                            englishIupacName,
+                            `${alkaneEn.slice(0, -1)}-1-ol`
+                        ];
+                    } else {
+                        khmerIupacName = khPrefix
+                            ? `${khPrefix}${alkaneKh}-${loc}-អុល`
+                            : `${alkaneKh}-${loc}-អុល`;
+                        khmerAltName = khPrefix
+                            ? `${khPrefix}-${loc}-${mergedAlkanolKh}`
+                            : `${loc}-${mergedAlkanolKh}`;
+                        const enRootNoE = alkaneEn.slice(0, -1);
+                        englishIupacName = enPrefix
+                            ? `${enPrefix}${enRootNoE}-${loc}-ol`
+                            : `${enRootNoE}-${loc}-ol`;
+
+                        // Also accept without '-1-' when loc === 1
+                        acceptedAnswers = [
+                            khmerIupacName,
+                            khmerAltName,
+                            englishIupacName,
+                            enPrefix ? `${enPrefix}-${loc}-${enRootNoE}ol` : `${loc}-${enRootNoE}ol`
+                        ];
+                        if (loc === 1) {
+                            acceptedAnswers.push(
+                                khPrefix ? `${khPrefix}${mergedAlkanolKh}` : mergedAlkanolKh
+                            );
+                        }
+                    }
+                } else {
+                    // Polyol (diol, triol, etc.)
+                    khmerIupacName = khPrefix
+                        ? `${khPrefix}${alkaneKh}-${ohLocStr}-${ohMultKh}អុល`
+                        : `${alkaneKh}-${ohLocStr}-${ohMultKh}អុល`;
+                    khmerAltName = khPrefix
+                        ? `${khPrefix}-${ohLocStr}-${alkaneKh}${ohMultKh}អុល`
+                        : `${ohLocStr}-${alkaneKh}${ohMultKh}អុល`;
+                    englishIupacName = enPrefix
+                        ? `${enPrefix}${alkaneEn}-${ohLocStr}-${ohMultEn}ol`
+                        : `${alkaneEn}-${ohLocStr}-${ohMultEn}ol`;
+                    acceptedAnswers = [khmerIupacName, khmerAltName, englishIupacName];
+                }
+            }
+
+            // Alcohol Classification (ថ្នាក់នៃអាល់កុល)
+            let alcoholClass = {
+                key: 'none',
+                badge: '-',
+                title: 'មិនមានក្រុមអុល (-OH)',
+                desc: 'ម៉ូលេគុលនេះមិនទាន់មានក្រុម -OH ទេ (ជាអាល់កាន)។ សូមចុចជ្រើសរើសក្រុម -OH រួចដាក់លើដៃកាបូនណាមួយ។',
+                color: 'slate'
+            };
+
+            let gemDiolWarning = null;
+            nodes.forEach(n => {
+                if (n.ohCount >= 2) {
+                    const cNum = nodeNumberMap[n.id] ? `ទី${nodeNumberMap[n.id]}` : '';
+                    gemDiolWarning = `ចំណាំគីមីវិទ្យា៖ កាបូន${cNum} មានផ្ទុកក្រុម -OH ចំនួន ${n.ohCount} នៅលើអាតូមកាបូនតែមួយ (Geminal diol)។ ក្នុងពិភពពិត ម៉ូលេគុលប្រភេទនេះមិនសូវមានស្ថិរភាពទេ ហើយងាយបាត់បង់ទឹក (H₂O) បង្កើតជាអាល់ដេអ៊ីត ឬសេតូន។`;
+                }
+            });
+
+            if (totalOh === 1) {
+                const ohNode = nodes.find(n => n.ohCount === 1);
+                const carbonNeighborsCount = ohNode.neighbors.length;
+                if (carbonNeighborsCount === 0) {
+                    alcoholClass = {
+                        key: 'primary',
+                        badge: 'I°',
+                        title: 'មេតាណុល / អាល់កុលថ្នាក់ទី១ (Primary Alcohol - I°)',
+                        desc: 'កាបូននាទី (C-OH) មិនមានភ្ជាប់ជាមួយកាបូនផ្សេងទៀតទេ (CH₃-OH) ដែលចាត់ទុកក្នុងក្រុមអាល់កុលថ្នាក់ទី១។',
+                        color: 'sky'
+                    };
+                } else if (carbonNeighborsCount === 1) {
+                    alcoholClass = {
+                        key: 'primary',
+                        badge: 'I°',
+                        title: 'អាល់កុលថ្នាក់ទី១ (Primary Alcohol - I°)',
+                        desc: 'កាបូននាទី (C-OH) ភ្ជាប់ដោយផ្ទាល់ជាមួយអាតូមកាបូនចំនួន 1 ផ្សេងទៀត (ទម្រង់ទូទៅ R-CH₂-OH)។',
+                        color: 'sky'
+                    };
+                } else if (carbonNeighborsCount === 2) {
+                    alcoholClass = {
+                        key: 'secondary',
+                        badge: 'II°',
+                        title: 'អាល់កុលថ្នាក់ទី២ (Secondary Alcohol - II°)',
+                        desc: 'កាបូននាទី (C-OH) ភ្ជាប់ដោយផ្ទាល់ជាមួយអាតូមកាបូនចំនួន 2 ផ្សេងទៀត (ទម្រង់ទូទៅ R-CH(OH)-R\')។',
+                        color: 'indigo'
+                    };
+                } else if (carbonNeighborsCount === 3) {
+                    alcoholClass = {
+                        key: 'tertiary',
+                        badge: 'III°',
+                        title: 'អាល់កុលថ្នាក់ទី៣ (Tertiary Alcohol - III°)',
+                        desc: 'កាបូននាទី (C-OH) ភ្ជាប់ដោយផ្ទាល់ជាមួយអាតូមកាបូនចំនួន 3 ផ្សេងទៀត (ទម្រង់ទូទៅ R₃C-OH)។',
+                        color: 'rose'
+                    };
+                }
+            } else if (totalOh > 1) {
+                const multKh = MULTIPLIER_KH[totalOh] || '';
+                alcoholClass = {
+                    key: 'polyol',
+                    badge: `${totalOh} OH`,
+                    title: `ប៉ូលីអាល់កុល / ${multKh}អុល (Polyol - ${MULTIPLIER_EN[totalOh] || 'poly'}ol)`,
+                    desc: `ម៉ូលេគុលនេះមានផ្ទុកក្រុមអ៊ីដ្រុកស៊ីល (-OH) ចំនួន ${totalOh} ក្រុម។`,
+                    color: 'purple'
+                };
+            }
+
+            // Molecular Formula & Molar Mass
+            const subNum = (n) => String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join('');
+            const molFormula = `C${totalCarbons > 1 ? subNum(totalCarbons) : ''}H${subNum(totalHydrogens)}${totalOh > 0 ? (totalOh > 1 ? 'O' + subNum(totalOh) : 'O') : ''}`;
+            const molarMass = (totalCarbons * 12.011 + totalHydrogens * 1.008 + totalOh * 15.999).toFixed(2);
+
+            // Condensed Formula along backbone
+            const condensedParts = backbone.map((slot, idx) => {
+                let hCount = 4;
+                // Backbone bonds
+                if (idx > 0) hCount--;
+                if (idx < backbone.length - 1) hCount--;
+
+                const attached = [];
+                ['left', 'top', 'bottom', 'right'].forEach(d => {
+                    const g = slot[d];
+                    if (g && g !== 'H') {
+                        hCount--;
+                        attached.push(g === 'CH3' ? 'CH₃' : g === 'C2H5' ? 'C₂H₅' : 'OH');
+                    }
+                });
+
+                let cStr = 'C';
+                if (hCount === 1) cStr += 'H';
+                else if (hCount > 1) cStr += 'H' + subNum(hCount);
+
+                if (attached.length > 0) {
+                    // Group identical attachments
+                    const counts = {};
+                    attached.forEach(a => counts[a] = (counts[a] || 0) + 1);
+                    Object.keys(counts).forEach(k => {
+                        if (counts[k] === 1) cStr += `(${k})`;
+                        else cStr += `(${k})${subNum(counts[k])}`;
+                    });
+                }
+                return cStr;
+            });
+            const condensedFormula = condensedParts.join('-');
+
+            return {
+                bestEval,
+                nodes,
+                nodeNumberMap,
+                totalCarbons,
+                totalHydrogens,
+                totalOh,
+                chainLen,
+                alkaneKh,
+                alkaneEn,
+                mergedAlkanolKh,
+                khPrefix,
+                khmerIupacName,
+                khmerAltName,
+                englishIupacName,
+                acceptedAnswers,
+                alcoholClass,
+                gemDiolWarning,
+                molFormula,
+                molarMass,
+                condensedFormula
+            };
+        }
+
+        /***********************************************************************
+         * 3. RENDER INTERACTIVE 2D MOLECULE & ANALYSIS PANEL
+         ***********************************************************************/
+        function renderAll() {
+            currentAnalysis = analyzeMolecule();
+            renderMoleculeCanvas(currentAnalysis);
+            renderFormulaBar(currentAnalysis);
+            renderAnalysisPanel(currentAnalysis);
+            updateChainCountBadge();
+        }
+
+        function updateChainCountBadge() {
+            const badge = document.getElementById('chainCountBadge');
+            const len = backbone.length;
+            const sub = String(len).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join('');
+            badge.textContent = `C${sub} (${len})`;
+        }
+
+        function renderFormulaBar(analysis) {
+            document.getElementById('condensedFormulaDisplay').textContent = analysis.condensedFormula;
+            document.getElementById('molecularFormulaDisplay').textContent = analysis.molFormula;
+            document.getElementById('molarMassDisplay').textContent = `${analysis.molarMass} g/mol`;
+        }
+
+        function renderMoleculeCanvas(analysis) {
+            const container = document.getElementById('moleculeCanvas');
+            const showNumbers = document.getElementById('showNumberingToggle').checked && !isQuizMode;
+            const { nodeNumberMap, nodes } = analysis;
+
+            // Helper to find node info by source
+            const getBackboneNode = (bbIdx) => nodes.find(n => n.source.type === 'backbone' && n.source.bbIndex === bbIdx);
+            const getSlotNodes = (bbIdx, dir) => nodes.filter(n => n.source.type === 'slot' && n.source.bbIndex === bbIdx && n.source.dir === dir);
+
+            let html = `<div class="flex items-center">`;
+
+            backbone.forEach((slot, idx) => {
+                const bbNode = getBackboneNode(idx);
+                const cNum = nodeNumberMap[bbNode.id];
+                const isInMainChain = Boolean(cNum);
+                const hasOhDirectly = bbNode.ohCount > 0;
+
+                // Left terminal slot (only for idx === 0)
+                if (idx === 0) {
+                    html += `
+                        <div class="flex items-center">
+                            ${renderSlotButton(0, 'left', slot.left, getSlotNodes(0, 'left'), nodeNumberMap, showNumbers)}
+                            <div class="w-4 sm:w-6 h-1 ${getBondColorClass(slot.left, getSlotNodes(0, 'left'), nodeNumberMap)}"></div>
+                        </div>
+                    `;
+                }
+
+                // Central Column: Top Slot + Vertical Bond + Carbon Atom + Vertical Bond + Bottom Slot
+                const topSlotNodes = getSlotNodes(idx, 'top');
+                const bottomSlotNodes = getSlotNodes(idx, 'bottom');
+
+                html += `
+                    <div class="flex flex-col items-center">
+                        <!-- Top Slot -->
+                        ${renderSlotButton(idx, 'top', slot.top, topSlotNodes, nodeNumberMap, showNumbers)}
+                        
+                        <!-- Top Vertical Bond -->
+                        <div class="w-1 h-4 sm:h-6 ${getBondColorClass(slot.top, topSlotNodes, nodeNumberMap)}"></div>
+
+                        <!-- Main Backbone Carbon Circle -->
+                        <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex flex-col items-center justify-center font-mono font-extrabold text-base sm:text-lg transition-all select-none
+                            ${isInMainChain
+                                ? 'bg-slate-800 text-white border-2 border-sky-400 main-chain-carbon'
+                                : 'bg-slate-800/90 text-emerald-300 border-2 border-emerald-500/70'
+                            }
+                            ${hasOhDirectly ? 'ring-2 ring-rose-500/70' : ''}
+                        ">
+                            <span>C</span>
+                            ${showNumbers && cNum ? `
+                                <span class="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-sky-500 text-slate-950 font-mono font-extrabold text-xs flex items-center justify-center shadow-md border border-white">
+                                    ${cNum}
+                                </span>
+                            ` : ''}
+                            ${!isInMainChain && showNumbers ? `
+                                <span class="text-[9px] font-sans font-semibold text-emerald-300 leading-none">ខ្នែង</span>
+                            ` : ''}
+                        </div>
+
+                        <!-- Bottom Vertical Bond -->
+                        <div class="w-1 h-4 sm:h-6 ${getBondColorClass(slot.bottom, bottomSlotNodes, nodeNumberMap)}"></div>
+
+                        <!-- Bottom Slot -->
+                        ${renderSlotButton(idx, 'bottom', slot.bottom, bottomSlotNodes, nodeNumberMap, showNumbers)}
+                    </div>
+                `;
+
+                // Horizontal Bond to Next Backbone Carbon
+                if (idx < backbone.length - 1) {
+                    const nextBbNode = getBackboneNode(idx + 1);
+                    const bothInMainChain = Boolean(nodeNumberMap[bbNode.id] && nodeNumberMap[nextBbNode.id]);
+                    html += `
+                        <div class="w-5 sm:w-8 h-1.5 rounded-full ${bothInMainChain ? 'bg-sky-400 shadow-sm shadow-sky-400/50' : 'bg-slate-600'}"></div>
+                    `;
+                }
+
+                // Right terminal slot (only for last carbon)
+                if (idx === backbone.length - 1) {
+                    const rightSlotNodes = getSlotNodes(idx, 'right');
+                    html += `
+                        <div class="flex items-center">
+                            <div class="w-4 sm:w-6 h-1 ${getBondColorClass(slot.right, rightSlotNodes, nodeNumberMap)}"></div>
+                            ${renderSlotButton(idx, 'right', slot.right, rightSlotNodes, nodeNumberMap, showNumbers)}
+                        </div>
+                    `;
+                }
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function getBondColorClass(val, slotNodes, nodeNumberMap) {
+            if (val === 'OH') return 'bg-rose-500';
+            if (val === 'CH3' || val === 'C2H5') {
+                const inMain = slotNodes.some(n => Boolean(nodeNumberMap[n.id]));
+                if (inMain) return 'bg-sky-400';
+                return val === 'CH3' ? 'bg-emerald-500' : 'bg-amber-500';
+            }
+            return 'bg-slate-700';
+        }
+
+        function renderSlotButton(bbIdx, dir, val, slotNodes, nodeNumberMap, showNumbers) {
+            const inMainChain = slotNodes.some(n => Boolean(nodeNumberMap[n.id]));
+            let numsInSlot = slotNodes
+                .map(n => nodeNumberMap[n.id])
+                .filter(Boolean)
+                .join(',');
+
+            let styleClasses = '';
+            let displayHtml = '';
+
+            if (val === 'H') {
+                styleClasses = 'bg-slate-800/70 hover:bg-slate-700 text-slate-400 border border-dashed border-slate-600 hover:border-sky-400';
+                displayHtml = `<span class="font-mono text-xs sm:text-sm font-semibold">H</span>`;
+            } else if (val === 'OH') {
+                styleClasses = 'bg-gradient-to-br from-rose-500 to-pink-600 text-white border-2 border-rose-300 oh-badge';
+                displayHtml = `<span class="font-mono text-xs sm:text-sm font-extrabold">OH</span>`;
+            } else if (val === 'CH3') {
+                styleClasses = inMainChain
+                    ? 'bg-sky-900/90 text-sky-200 border-2 border-sky-400 shadow-md'
+                    : 'bg-emerald-600/90 text-white border-2 border-emerald-300 shadow-md';
+                displayHtml = `<span class="font-mono text-xs sm:text-sm font-bold">CH₃</span>`;
+            } else if (val === 'C2H5') {
+                styleClasses = inMainChain
+                    ? 'bg-sky-900/90 text-sky-200 border-2 border-sky-400 shadow-md'
+                    : 'bg-amber-600/90 text-white border-2 border-amber-300 shadow-md';
+                displayHtml = `<span class="font-mono text-xs sm:text-sm font-bold">C₂H₅</span>`;
+            }
+
+            return `
+                <button onclick="handleSlotClick(${bbIdx}, '${dir}')" 
+                    class="slot-btn relative min-w-[2.6rem] sm:min-w-[3rem] h-10 sm:h-11 px-2 rounded-xl flex flex-col items-center justify-center cursor-pointer select-none ${styleClasses}"
+                    title="ចុចដើម្បីប្តូរក្រុមអាតូម">
+                    ${displayHtml}
+                    ${showNumbers && numsInSlot ? `
+                        <span class="absolute -top-2 -right-2 px-1.5 min-w-[1.25rem] h-5 rounded-full bg-sky-400 text-slate-950 font-mono font-extrabold text-[10px] flex items-center justify-center shadow border border-white">
+                            ${numsInSlot}
+                        </span>
+                    ` : ''}
+                </button>
+            `;
+        }
+
+        function renderAnalysisPanel(analysis) {
+            const analysisSection = document.getElementById('analysisSection');
+            if (isQuizMode) {
+                analysisSection.classList.add('opacity-25', 'pointer-events-none', 'blur-sm', 'select-none');
+            } else {
+                analysisSection.classList.remove('opacity-25', 'pointer-events-none', 'blur-sm', 'select-none');
+            }
+
+            document.getElementById('khmerIupacName').textContent = analysis.khmerIupacName;
+            document.getElementById('khmerAltName').textContent = analysis.khmerAltName;
+            document.getElementById('englishIupacName').textContent = analysis.englishIupacName;
+
+            // Classification Card
+            const cls = analysis.alcoholClass;
+            const iconBox = document.getElementById('alcoholDegreeIcon');
+            const titleEl = document.getElementById('alcoholClassTitle');
+            const descEl = document.getElementById('alcoholClassDesc');
+
+            iconBox.textContent = cls.badge;
+            titleEl.textContent = cls.title;
+            descEl.textContent = cls.desc;
+
+            // Gem-diol warning
+            const warnBox = document.getElementById('stabilityWarningBox');
+            const warnText = document.getElementById('stabilityWarningText');
+            if (analysis.gemDiolWarning) {
+                warnBox.classList.remove('hidden');
+                warnText.textContent = analysis.gemDiolWarning;
+            } else {
+                warnBox.classList.add('hidden');
+            }
+
+            // Step-by-Step Explanation
+            const step1 = document.getElementById('step1Text');
+            const step2 = document.getElementById('step2Text');
+            const step3 = document.getElementById('step3Text');
+            const step4 = document.getElementById('step4FormulaBox');
+
+            step1.innerHTML = `ខ្សែកាបូនមេវែងជាងគេមានអាតូមកាបូនចំនួន <strong class="text-sky-700 font-mono">${analysis.chainLen}</strong> អាតូម ដូចនេះឈ្មោះអាល់កានគោលគឺ <strong class="text-sky-700">«${analysis.alkaneKh}» (${analysis.alkaneEn})</strong>។`;
+
+            if (analysis.totalOh === 0) {
+                step2.innerHTML = `<span class="text-amber-700">មិនទាន់មានក្រុមអុល (-OH) នៅលើខ្សែកាបូនទេ។ ការបង់លេខគឺផ្អែកលើទីតាំងខ្នែងអាល់គីលឱ្យបានលេខតូចបំផុត។</span>`;
+            } else {
+                const ohLocsStr = analysis.bestEval.ohLocants.join(', ');
+                step2.innerHTML = `បង់លេខពីខាងដែលជិតក្រុម <span class="font-mono font-bold text-rose-600">-OH</span> ជាងគេ ធ្វើឱ្យក្រុមអុលស្ថិតនៅកាបូនទី <strong class="text-rose-600 font-mono">${ohLocsStr}</strong> (លេខតូចបំផុត)។`;
+            }
+
+            if (analysis.bestEval.substituents.length === 0) {
+                step3.innerHTML = `ម៉ូលេគុលនេះ<strong>គ្មានខ្នែងអាល់គីល</strong>ទេ (ជាខ្សែកាបូនត្រង់)។`;
+            } else {
+                const details = analysis.bestEval.substituents
+                    .sort((a, b) => a.locant - b.locant)
+                    .map(s => `ខ្នែង<strong>${s.nameKh}</strong>នៅកាបូនទី <span class="font-mono font-bold text-emerald-700">${s.locant}</span>`)
+                    .join(' និង ');
+                step3.innerHTML = `មានខ្នែងសរុបចំនួន <strong>${analysis.bestEval.substituents.length}</strong> គឺ៖ ${details} → សរសេរជា <strong class="text-emerald-700">«${analysis.khPrefix}»</strong>។`;
+            }
+
+            step4.innerHTML = `
+                <div class="flex flex-wrap items-center gap-1.5">
+                    ${analysis.khPrefix ? `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">${analysis.khPrefix}</span><span>+</span>` : ''}
+                    <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-bold">${analysis.alkaneKh}</span>
+                    ${analysis.totalOh > 0 ? `
+                        <span>+</span>
+                        <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold">-${analysis.bestEval.ohLocants.join(',')}-${MULTIPLIER_KH[analysis.totalOh] || ''}អុល</span>
+                    ` : ''}
+                    <span>=</span>
+                    <span class="px-2.5 py-0.5 rounded bg-indigo-600 text-white font-bold">${analysis.khmerIupacName}</span>
+                </div>
+            `;
+        }
+
+        /***********************************************************************
+         * 4. USER INTERACTIONS (BRUSH, SLOTS, PRESETS, CHAIN LENGTH)
+         ***********************************************************************/
+        function selectBrush(brush) {
+            activeBrush = brush;
+            const brushes = ['OH', 'CH3', 'C2H5', 'H'];
+            brushes.forEach(b => {
+                const btn = document.getElementById(`brush-${b}`);
+                if (b === brush) {
+                    if (b === 'OH') {
+                        btn.className = 'brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-rose-600 text-white border-rose-300 shadow-lg shadow-rose-600/30 scale-105';
+                    } else if (b === 'CH3') {
+                        btn.className = 'brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-emerald-600 text-white border-emerald-300 shadow-lg shadow-emerald-600/30 scale-105';
+                    } else if (b === 'C2H5') {
+                        btn.className = 'brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-amber-600 text-white border-amber-300 shadow-lg shadow-amber-600/30 scale-105';
+                    } else {
+                        btn.className = 'brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-slate-600 text-white border-slate-300 shadow-lg scale-105';
+                    }
+                } else {
+                    btn.className = 'brush-btn flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all border-2 bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500';
+                }
+            });
+        }
+
+        function handleSlotClick(bbIdx, dir) {
+            const currentVal = backbone[bbIdx][dir];
+            // If clicking a slot that already has the activeBrush, toggle it back to 'H'
+            if (currentVal === activeBrush) {
+                backbone[bbIdx][dir] = 'H';
+            } else {
+                backbone[bbIdx][dir] = activeBrush;
+            }
+            renderAll();
+        }
+
+        function changeChainLength(delta) {
+            const newLen = backbone.length + delta;
+            if (newLen < 1 || newLen > 8) return;
+
+            if (delta > 0) {
+                // Convert previous last carbon's right slot into a regular H if it had one
+                const prevLast = backbone[backbone.length - 1];
+                const carryRight = prevLast.right || 'H';
+                prevLast.right = null;
+                backbone.push({
+                    top: 'H',
+                    bottom: 'H',
+                    left: null,
+                    right: carryRight === 'OH' ? 'OH' : 'H'
+                });
+            } else {
+                backbone.pop();
+                backbone[backbone.length - 1].right = 'H';
+                if (backbone.length === 1) {
+                    backbone[0].left = backbone[0].left || 'H';
+                }
+            }
+            renderAll();
+        }
+
+        function resetToSimpleAlcohol() {
+            backbone = [
+                { top: 'H', bottom: 'H', left: 'H', right: null },
+                { top: 'H', bottom: 'H', left: null, right: null },
+                { top: 'OH', bottom: 'H', left: null, right: 'H' }
+            ];
+            hideQuizFeedback();
+            renderAll();
+        }
+
+        function loadPreset(presetKey) {
+            hideQuizFeedback();
+            if (presetKey === 'ethanol') {
+                backbone = [
+                    { top: 'H', bottom: 'H', left: 'H', right: null },
+                    { top: 'H', bottom: 'H', left: null, right: 'OH' }
+                ];
+            } else if (presetKey === 'propan2ol') {
+                backbone = [
+                    { top: 'H', bottom: 'H', left: 'H', right: null },
+                    { top: 'OH', bottom: 'H', left: null, right: null },
+                    { top: 'H', bottom: 'H', left: null, right: 'H' }
+                ];
+            } else if (presetKey === '2methylpropan2ol') {
+                backbone = [
+                    { top: 'H', bottom: 'H', left: 'H', right: null },
+                    { top: 'OH', bottom: 'CH3', left: null, right: null },
+                    { top: 'H', bottom: 'H', left: null, right: 'H' }
+                ];
+            } else if (presetKey === '23dimethylbutan1ol') {
+                backbone = [
+                    { top: 'OH', bottom: 'H', left: 'H', right: null },
+                    { top: 'CH3', bottom: 'H', left: null, right: null },
+                    { top: 'H', bottom: 'CH3', left: null, right: null },
+                    { top: 'H', bottom: 'H', left: null, right: 'H' }
+                ];
+            } else if (presetKey === '3ethyl4methylpentan2ol') {
+                backbone = [
+                    { top: 'H', bottom: 'H', left: 'H', right: null },
+                    { top: 'OH', bottom: 'H', left: null, right: null },
+                    { top: 'H', bottom: 'C2H5', left: null, right: null },
+                    { top: 'CH3', bottom: 'H', left: null, right: null },
+                    { top: 'H', bottom: 'H', left: null, right: 'H' }
+                ];
+            } else if (presetKey === 'propane12diol') {
+                backbone = [
+                    { top: 'OH', bottom: 'H', left: 'H', right: null },
+                    { top: 'OH', bottom: 'H', left: null, right: null },
+                    { top: 'H', bottom: 'H', left: null, right: 'H' }
+                ];
+            }
+            renderAll();
+        }
+
+        function generateRandomMolecule() {
+            hideQuizFeedback();
+            const len = Math.floor(Math.random() * 4) + 3; // 3 to 6 carbons
+            const newBb = [];
+            for (let i = 0; i < len; i++) {
+                newBb.push({
+                    top: 'H',
+                    bottom: 'H',
+                    left: i === 0 ? 'H' : null,
+                    right: i === len - 1 ? 'H' : null
+                });
+            }
+
+            // Place 1 OH group at a random carbon
+            const ohCarbonIdx = Math.floor(Math.random() * len);
+            newBb[ohCarbonIdx].top = 'OH';
+
+            // Place 1 or 2 random alkyl branches on internal carbons
+            const numBranches = Math.floor(Math.random() * 2) + 1;
+            for (let b = 0; b < numBranches; b++) {
+                const cIdx = Math.floor(Math.random() * (len - 2)) + 1;
+                const dir = newBb[cIdx].top === 'H' ? 'top' : 'bottom';
+                if (newBb[cIdx][dir] === 'H') {
+                    newBb[cIdx][dir] = Math.random() < 0.78 ? 'CH3' : 'C2H5';
+                }
+            }
+
+            backbone = newBb;
+            renderAll();
+        }
+
+        /***********************************************************************
+         * 5. QUIZ / PRACTICE MODE ENGINE
+         ***********************************************************************/
+        function toggleQuizMode() {
+            isQuizMode = !isQuizMode;
+            const quizPanel = document.getElementById('quizPanel');
+            const toggleBtn = document.getElementById('toggleModeBtn');
+            const toggleText = document.getElementById('toggleModeText');
+
+            if (isQuizMode) {
+                quizPanel.classList.remove('hidden');
+                toggleBtn.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/20';
+                toggleText.textContent = 'ចាកចេញពីរបៀបហ្វឹកហាត់ (បង្ហាញឈ្មោះ)';
+                clearQuizInput();
+            } else {
+                quizPanel.classList.add('hidden');
+                toggleBtn.className = 'flex items-center gap-2 px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20';
+                toggleText.textContent = 'របៀបហ្វឹកហាត់សរសេរឈ្មោះ (Quiz)';
+            }
+            renderAll();
+        }
+
+        function appendChip(text) {
+            const input = document.getElementById('quizNameInput');
+            chipHistory.push(input.value);
+            input.value += text;
+            input.focus();
+        }
+
+        function backspaceQuizInput() {
+            const input = document.getElementById('quizNameInput');
+            if (chipHistory.length > 0) {
+                input.value = chipHistory.pop();
+            } else {
+                input.value = input.value.slice(0, -1);
+            }
+        }
+
+        function clearQuizInput() {
+            document.getElementById('quizNameInput').value = '';
+            chipHistory = [];
+            selectedQuizClass = null;
+            document.querySelectorAll('.quiz-class-btn').forEach(btn => {
+                btn.className = 'quiz-class-btn px-3 py-2 rounded-xl border text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition text-left';
+            });
+            hideQuizFeedback();
+        }
+
+        function selectQuizClass(clsKey) {
+            selectedQuizClass = clsKey;
+            document.querySelectorAll('.quiz-class-btn').forEach(btn => {
+                btn.className = 'quiz-class-btn px-3 py-2 rounded-xl border text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition text-left';
+            });
+            const activeBtn = document.getElementById(`qclass-${clsKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'quiz-class-btn px-3 py-2 rounded-xl border-2 border-indigo-600 text-xs font-bold text-indigo-900 bg-indigo-50 transition text-left';
+            }
+        }
+
+        function normalizeChemName(str) {
+            return str
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/–|—/g, '-');
+        }
+
+        function checkQuizAnswer() {
+            const userRaw = document.getElementById('quizNameInput').value;
+            const feedbackBox = document.getElementById('quizFeedbackBox');
+
+            if (!userRaw.trim()) {
+                feedbackBox.className = 'p-4 rounded-xl border bg-amber-50 border-amber-300 text-amber-900 text-xs sm:text-sm font-medium';
+                feedbackBox.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1.5"></i>សូមវាយបញ្ចូល ឬចុចប៊ូតុងផ្គុំឈ្មោះអាល់កុលជាមុនសិន!`;
+                feedbackBox.classList.remove('hidden');
+                return;
+            }
+
+            const normUser = normalizeChemName(userRaw);
+            const normAccepted = currentAnalysis.acceptedAnswers.map(normalizeChemName);
+            const isNameCorrect = normAccepted.includes(normUser);
+            const isClassCorrect = !selectedQuizClass || selectedQuizClass === currentAnalysis.alcoholClass.key;
+
+            quizTotal++;
+            if (isNameCorrect && isClassCorrect) {
+                quizScore++;
+                feedbackBox.className = 'p-4 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-950 text-xs sm:text-sm space-y-1';
+                feedbackBox.innerHTML = `
+                    <div class="font-bold text-emerald-800 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-emerald-600"></i>
+                        <span>អបអរសាទរ! ចម្លើយរបស់អ្នកត្រឹមត្រូវហើយ!</span>
+                    </div>
+                    <div>ឈ្មោះផ្លូវការ៖ <strong>${currentAnalysis.khmerIupacName}</strong> (ឬ <strong>${currentAnalysis.khmerAltName}</strong> / <span class="font-mono">${currentAnalysis.englishIupacName}</span>)</div>
+                    <div>${currentAnalysis.alcoholClass.title}</div>
+                `;
+            } else {
+                feedbackBox.className = 'p-4 rounded-xl border bg-rose-50 border-rose-300 text-rose-950 text-xs sm:text-sm space-y-1.5';
+                feedbackBox.innerHTML = `
+                    <div class="font-bold text-rose-800 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-circle-xmark text-rose-600"></i>
+                        <span>មិនទាន់ត្រឹមត្រូវទាំងស្រុងទេ សូមពិនិត្យមើលការពន្យល់ខាងក្រោម៖</span>
+                    </div>
+                    <div>ចម្លើយដែលអ្នកបានសរសេរ៖ <span class="font-bold underline">${userRaw}</span></div>
+                    <div>ចម្លើយត្រឹមត្រូវគឺ៖ <strong class="text-emerald-700 text-sm">${currentAnalysis.khmerIupacName}</strong> ឬ <strong class="text-indigo-700 text-sm">${currentAnalysis.khmerAltName}</strong> (<span class="font-mono">${currentAnalysis.englishIupacName}</span>)</div>
+                    <div class="text-slate-700 pt-1">💡 <strong>គន្លឹះ៖</strong> ខ្សែកាបូនមេមានកាបូនចំនួន ${currentAnalysis.chainLen} (${currentAnalysis.alkaneKh}) ហើយក្រុម -OH ស្ថិតនៅកាបូនទី ${currentAnalysis.bestEval.ohLocants.join(',')}។ ថ្នាក់របស់វាគឺ <strong>${currentAnalysis.alcoholClass.title}</strong>។</div>
+                `;
+            }
+
+            document.getElementById('quizScore').textContent = quizScore;
+            document.getElementById('quizTotal').textContent = quizTotal;
+            feedbackBox.classList.remove('hidden');
+        }
+
+        function revealQuizAnswer() {
+            const feedbackBox = document.getElementById('quizFeedbackBox');
+            feedbackBox.className = 'p-4 rounded-xl border bg-sky-50 border-sky-300 text-sky-950 text-xs sm:text-sm space-y-1';
+            feedbackBox.innerHTML = `
+                <div class="font-bold text-sky-900">ចម្លើយត្រឹមត្រូវ៖</div>
+                <div class="text-base font-extrabold text-slate-900">${currentAnalysis.khmerIupacName} <span class="text-sm font-normal text-slate-600">(ឬ ${currentAnalysis.khmerAltName} / ${currentAnalysis.englishIupacName})</span></div>
+                <div>ថ្នាក់នៃអាល់កុល៖ <strong>${currentAnalysis.alcoholClass.title}</strong></div>
+            `;
+            feedbackBox.classList.remove('hidden');
+            // Temporarily unblur the analysis section so student can read the 4 steps
+            const analysisSection = document.getElementById('analysisSection');
+            analysisSection.classList.remove('opacity-25', 'pointer-events-none', 'blur-sm', 'select-none');
+        }
+
+        function nextQuizQuestion() {
+            clearQuizInput();
+            generateRandomMolecule();
+        }
+
+        function hideQuizFeedback() {
+            const feedbackBox = document.getElementById('quizFeedbackBox');
+            if (feedbackBox) feedbackBox.classList.add('hidden');
+        }
+
+        /***********************************************************************
+         * 6. UTILITIES (COPY & MODAL)
+         ***********************************************************************/
+        function copyIupacName() {
+            const textToCopy = `${currentAnalysis.khmerIupacName} (${currentAnalysis.englishIupacName})`;
+            const tempInput = document.createElement('textarea');
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            const copyText = document.getElementById('copyBtnText');
+            copyText.textContent = 'បានចម្លង!';
+            setTimeout(() => {
+                copyText.textContent = 'ចម្លង';
+            }, 1800);
+        }
+
+        function openGuideModal() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeGuideModal() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Initialize on Window Load
+        window.onload = function () {
+            loadPreset('23dimethylbutan1ol');
+        };
+    </script>
+</body>
+</html>

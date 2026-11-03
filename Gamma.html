@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ពិសោធន៍គីមីវិទ្យា៖ វិធានហ្គាម៉ា និងអុកស៊ីតកម្មអាល់កុល</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Kantumruy Pro & Battambang -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', 'Battambang', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .chem-font {
+            font-family: 'Kantumruy Pro', sans-serif;
+            letter-spacing: 0.02em;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Drop animation for Virtual Lab */
+        @keyframes dropFall {
+            0% { transform: translateY(0) scale(0.8); opacity: 1; }
+            80% { transform: translateY(85px) scale(1); opacity: 1; }
+            100% { transform: translateY(95px) scale(1.4); opacity: 0; }
+        }
+        .animate-drop {
+            animation: dropFall 0.65s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+        }
+        /* Bubble animation */
+        @keyframes riseBubble {
+            0% { transform: translateY(0) scale(0.5); opacity: 0.7; }
+            100% { transform: translateY(-60px) scale(1.1); opacity: 0; }
+        }
+        .bubble {
+            animation: riseBubble 1.8s infinite ease-in;
+        }
+        /* Smooth liquid color transition */
+        .liquid-transition {
+            transition: background-color 1.2s ease, height 0.6s ease;
+        }
+        /* Gamma path animation */
+        .gamma-path {
+            stroke-dasharray: 400;
+            stroke-dashoffset: 400;
+            animation: drawGamma 1.2s ease-out forwards;
+        }
+        @keyframes drawGamma {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50">
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
+
+        <!-- Compact Non-Sticky Top Bar & Navigation Tabs -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-200">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-indigo-900 text-amber-400 flex items-center justify-center font-bold text-lg shadow-sm">
+                    γ
+                </div>
+                <h1 class="text-sm sm:text-base font-bold text-slate-800">ពិសោធន៍គីមីវិទ្យា៖ វិធានហ្គាម៉ា (γ) និងអុកស៊ីតកម្មអាល់កុល</h1>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex bg-indigo-950 p-1 rounded-xl w-full sm:w-auto justify-center shadow-sm">
+                <button id="tabBtnGamma" onclick="switchTab('gamma')" class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 bg-amber-400 text-indigo-950 shadow">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>វិធានហ្គាម៉ា & ថ្លឹងសមីការ</span>
+                </button>
+                <button id="tabBtnLab" onclick="switchTab('lab')" class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-blue-100 hover:bg-indigo-800/60">
+                    <i class="fa-solid fa-flask-vial"></i>
+                    <span>ពិសោធន៍អុកស៊ីតកម្មអាល់កុល</span>
+                </button>
+                <button id="tabBtnCompare" onclick="switchTab('compare')" class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 text-blue-100 hover:bg-indigo-800/60">
+                    <i class="fa-solid fa-vials"></i>
+                    <span>ប្រៀបធៀបអាល់កុលទាំង ៣ ថ្នាក់</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: GAMMA RULE & EQUATION BALANCER                     -->
+        <!-- ========================================================= -->
+        <section id="sectionGamma" class="space-y-6">
+
+            <!-- Quick Preset Scenarios from Textbook -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-6 bg-indigo-600 rounded-full"></span>
+                        <h2 class="font-bold text-slate-800 text-base sm:text-lg">គំរូសមីការក្នុងសៀវភៅពុម្ព និងលំហាត់ទូទៅ (ចុចជ្រើសរើសរហ័ស)</h2>
+                    </div>
+                    <button onclick="openCustomModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>បង្កើត ឬកែប្រែគូរេដុកថ្មីដោយខ្លួនឯង</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <button onclick="loadScenario('cr2o7', 'ethanal')" class="text-left p-3 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 transition group">
+                        <div class="text-xs font-bold text-indigo-700 mb-1 flex items-center justify-between">
+                            <span>ករណីទី ១ ក្នុងសៀវភៅ (អុកស៊ីតករល្មម)</span>
+                            <i class="fa-solid fa-arrow-right text-indigo-400 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-800">Cr₂O₇²⁻ + អេតាណុល → អេតាណាល់</div>
+                        <div class="text-xs text-slate-500 mt-0.5">Cr₂O₇²⁻/Cr³⁺ (1.33V) & CH₃CHO/CH₃CH₂OH (0.19V)</div>
+                    </button>
+
+                    <button onclick="loadScenario('cr2o7', 'ethanoic')" class="text-left p-3 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100 transition group">
+                        <div class="text-xs font-bold text-amber-800 mb-1 flex items-center justify-between">
+                            <span>ករណីទី ២ ក្នុងសៀវភៅ (អុកស៊ីតករលើស)</span>
+                            <i class="fa-solid fa-arrow-right text-amber-500 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-800">Cr₂O₇²⁻ + អេតាណុល → អាស៊ីតអេតាណូអ៊ិច</div>
+                        <div class="text-xs text-slate-500 mt-0.5">Cr₂O₇²⁻/Cr³⁺ (1.33V) & CH₃COOH/CH₃CH₂OH (0.03V)</div>
+                    </button>
+
+                    <button onclick="loadScenario('mno4', 'ethanoic')" class="text-left p-3 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100 transition group">
+                        <div class="text-xs font-bold text-purple-800 mb-1 flex items-center justify-between">
+                            <span>សម្គាល់ក្នុងសៀវភៅ (អ៊ីយ៉ុងពែម៉ង់កាណាត)</span>
+                            <i class="fa-solid fa-arrow-right text-purple-400 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-800">MnO₄⁻ + អេតាណុល → អាស៊ីតអេតាណូអ៊ិច</div>
+                        <div class="text-xs text-slate-500 mt-0.5">MnO₄⁻/Mn²⁺ (1.51V) & CH₃COOH/CH₃CH₂OH (0.03V)</div>
+                    </button>
+
+                    <button onclick="loadScenario('cr2o7', 'butanone')" class="text-left p-3 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-100 transition group">
+                        <div class="text-xs font-bold text-teal-800 mb-1 flex items-center justify-between">
+                            <span>អាល់កុលថ្នាក់ II (ប៊ុយតាន-2-អុល)</span>
+                            <i class="fa-solid fa-arrow-right text-teal-500 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-800">Cr₂O₇²⁻ + ប៊ុយតាន-2-អុល → ប៊ុយតាណូន</div>
+                        <div class="text-xs text-slate-500 mt-0.5">Cr₂O₇²⁻/Cr³⁺ (1.33V) & C₄H₈O/C₄H₉OH (0.15V)</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Grid: Couple Selection + Gamma Rule Diagram -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Column: Select & Customize Couples (5 cols) -->
+                <div class="lg:col-span-5 space-y-4">
+                    <!-- Couple 1 Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 text-xs font-bold">គូរេដុកទី ១ (Ox₁ / Red₁)</span>
+                            <button onclick="editSelectedCouple(1)" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-pen-to-square"></i> កែប្រែគូនេះ
+                            </button>
+                        </div>
+
+                        <label class="block text-xs font-medium text-slate-600 mb-1.5">ជ្រើសរើសគូរេដុកទី ១ ៖</label>
+                        <select id="selectCouple1" onchange="onCoupleSelectionChange()" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3">
+                        </select>
+
+                        <div id="infoCouple1" class="bg-slate-50 rounded-xl p-3 border border-slate-200/80 space-y-1.5 text-xs">
+                            <!-- Dynamically filled -->
+                        </div>
+                    </div>
+
+                    <!-- Couple 2 Card -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-xs font-bold">គូរេដុកទី ២ (Ox₂ / Red₂)</span>
+                            <button onclick="editSelectedCouple(2)" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-pen-to-square"></i> កែប្រែគូនេះ
+                            </button>
+                        </div>
+
+                        <label class="block text-xs font-medium text-slate-600 mb-1.5">ជ្រើសរើសគូរេដុកទី ២ ៖</label>
+                        <select id="selectCouple2" onchange="onCoupleSelectionChange()" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3">
+                        </select>
+
+                        <div id="infoCouple2" class="bg-slate-50 rounded-xl p-3 border border-slate-200/80 space-y-1.5 text-xs">
+                            <!-- Dynamically filled -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Gamma Rule Diagram (7 cols) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <h3 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-diagram-project text-indigo-600"></i>
+                                <span>គំនូសតាងវិធានហ្គាម៉ា (γ) លើអ័ក្សប៉ូតង់ស្យែល E°</span>
+                            </h3>
+                            <span id="emfBadge" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+                                ΔE° = 1.14 V
+                            </span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 mb-4">
+                            តាមវិធានហ្គាម៉ា (γ)៖ <strong>អុកស៊ីតករខ្លាំងជាង</strong> (នៅខាងលើផ្នែកខាងឆ្វេង) មានអំពើជាមួយ <strong>រេដុករខ្លាំងជាង</strong> (នៅខាងក្រោមផ្នែកខាងស្តាំ) បង្កើតបានជារេដុករ និងអុកស៊ីតករឆ្លាស់គ្នា។
+                        </p>
+                    </div>
+
+                    <!-- SVG Gamma Diagram -->
+                    <div class="relative w-full bg-slate-50 rounded-2xl border border-slate-200 p-3 flex items-center justify-center overflow-hidden">
+                        <svg id="gammaSvg" viewBox="0 0 600 320" class="w-full max-w-[580px] h-auto select-none">
+                            <!-- Dynamically rendered via JS -->
+                        </svg>
+                    </div>
+
+                    <!-- Interpretation Box matching Textbook -->
+                    <div id="gammaConclusion" class="mt-4 p-4 rounded-xl bg-indigo-50/90 border border-indigo-200 text-xs sm:text-sm text-slate-800 leading-relaxed">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step-by-Step Half Equations & Balancing Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-superscript text-indigo-600"></i>
+                            <span>កន្លះសមីការអេឡិចត្រូនិច និងសមីការតុល្យការ</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                            សិស្សអាចជ្រើសរើស «របៀបបង្ហាញស្វ័យប្រវត្តិ» ឬ «របៀបហ្វឹកហាត់ថ្លឹងសមីការដោយខ្លួនឯង»
+                        </p>
+                    </div>
+
+                    <!-- Mode Switcher -->
+                    <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl self-start sm:self-auto">
+                        <button id="btnAutoBalance" onclick="setBalanceMode('auto')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm transition">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> បង្ហាញស្វ័យប្រវត្តិ
+                        </button>
+                        <button id="btnPracticeBalance" onclick="setBalanceMode('practice')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-user-graduate mr-1"></i> ហ្វឹកហាត់ថ្លឹងដោយខ្លួនឯង
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Textbook style equation layout -->
+                <div id="equationWorkspace" class="mt-5">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- Color Observation Bar -->
+                <div id="colorObservationBar" class="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: VIRTUAL LAB - ALCOHOL OXIDATION                    -->
+        <!-- ========================================================= -->
+        <section id="sectionLab" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <!-- Left Controls: Choose Reagents (5 cols) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-5">
+                    <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-base">រៀបចំសារធាតុប្រតិករក្នុងបំពង់សាក</h2>
+                            <p class="text-xs text-slate-500">ផ្លាស់ប្តូរអាល់កុល អុកស៊ីតករ និងបរិមាណដើម្បីសង្កេត</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Alcohol Type -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-2">១. ជ្រើសរើសប្រភេទអាល់កុល (ក្នុងបំពង់សាក) ៖</label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <button onclick="selectLabAlcohol('ethanol')" id="alcBtn_ethanol" class="alc-btn text-left p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50/70 transition flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-bold text-slate-800">អេតាណុល (CH₃-CH₂OH)</div>
+                                    <div class="text-xs text-slate-600">អាល់កុលថ្នាក់ I (Primary Alcohol)</div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-md bg-indigo-600 text-white text-xs font-bold">ថ្នាក់ I</span>
+                            </button>
+
+                            <button onclick="selectLabAlcohol('butan1ol')" id="alcBtn_butan1ol" class="alc-btn text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-bold text-slate-800">ប៊ុយតាន-1-អុល (CH₃-CH₂-CH₂-CH₂OH)</div>
+                                    <div class="text-xs text-slate-600">អាល់កុលថ្នាក់ I (នៃ C₄H₉OH ក្នុងសៀវភៅទំព័រ 202)</div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-bold">ថ្នាក់ I</span>
+                            </button>
+
+                            <button onclick="selectLabAlcohol('butan2ol')" id="alcBtn_butan2ol" class="alc-btn text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-bold text-slate-800">ប៊ុយតាន-2-អុល (CH₃-CHOH-CH₂-CH₃)</div>
+                                    <div class="text-xs text-slate-600">អាល់កុលថ្នាក់ II (Secondary Alcohol)</div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-md bg-teal-100 text-teal-800 text-xs font-bold">ថ្នាក់ II</span>
+                            </button>
+
+                            <button onclick="selectLabAlcohol('methylpropan2ol')" id="alcBtn_methylpropan2ol" class="alc-btn text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-bold text-slate-800">2-មេទីលប្រូប៉ាន-2-អុល ((CH₃)₃C-OH)</div>
+                                    <div class="text-xs text-slate-600">អាល់កុលថ្នាក់ III (Tertiary Alcohol)</div>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-md bg-rose-100 text-rose-800 text-xs font-bold">ថ្នាក់ III</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Oxidizing Agent -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-2">២. ជ្រើសរើសអុកស៊ីតករក្នុងមជ្ឈដ្ឋានអាស៊ីត (H₂SO₄) ៖</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button onclick="selectLabOxidant('cr2o7')" id="oxBtn_cr2o7" class=" p-3 rounded-xl border-2 border-amber-500 bg-amber-50 text-left transition">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-4 h-4 rounded-full bg-orange-500 inline-block shadow-sm"></span>
+                                    <span class="font-bold text-xs sm:text-sm text-slate-800">K₂Cr₂O₇ + H₂SO₄</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">អ៊ីយ៉ុង Cr₂O₇²⁻ (ពណ៌លឿងទឹកក្រូច) E° = 1.33V</p>
+                            </button>
+
+                            <button onclick="selectLabOxidant('mno4')" id="oxBtn_mno4" class="p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-4 h-4 rounded-full bg-purple-600 inline-block shadow-sm"></span>
+                                    <span class="font-bold text-xs sm:text-sm text-slate-800">KMnO₄ + H₂SO₄</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">អ៊ីយ៉ុង MnO₄⁻ (ពណ៌ស្វាយ) E° = 1.51V</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Oxidizer Amount -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-2">៣. បរិមាណអុកស៊ីតករដែលបន្តក់ចូល ៖</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button onclick="selectLabAmount('deficit')" id="amtBtn_deficit" class="p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-left transition">
+                                <div class="font-bold text-xs sm:text-sm text-slate-800">បរិមាណល្មម (មិនលើស)</div>
+                                <p class="text-[11px] text-slate-600 mt-0.5">អាល់កុលថ្នាក់ I បំលែងជាអាល់ដេអ៊ីត (R-CHO)</p>
+                            </button>
+
+                            <button onclick="selectLabAmount('excess')" id="amtBtn_excess" class="p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition">
+                                <div class="font-bold text-xs sm:text-sm text-slate-800">បរិមាណអុកស៊ីតករលើស</div>
+                                <p class="text-[11px] text-slate-600 mt-0.5">អាល់កុលថ្នាក់ I បំលែងជាអាស៊ីតកាបុកស៊ីលិច (R-COOH)</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-2 flex flex-wrap gap-2.5">
+                        <button onclick="runLabDropExperiment()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-eye-dropper"></i>
+                            <span>បន្តក់អុកស៊ីតករ & ដុតកម្ដៅស្រាលៗ</span>
+                        </button>
+                        <button onclick="resetLabTube()" class="py-3 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>លាងបំពង់សាក</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Visual Workbench & Schiff Test (7 cols) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base">តុពិសោធន៍និម្មិត (ការសង្កេតពណ៌ និងតេស្តរ៉េអាក់ទីបស៊ីប)</h3>
+                            <p class="text-xs text-slate-500">សង្កេតមើលការប្រែពណ៌នៃសូលុយស្យុង និងធ្វើតេស្តអត្តសញ្ញាណផលិតផល</p>
+                        </div>
+                        <span id="labStatusBadge" class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                            រង់ចាំការបន្តក់សូលុយស្យុង...
+                        </span>
+                    </div>
+
+                    <!-- Interactive Apparatus Stage -->
+                    <div class="my-4 bg-gradient-to-b from-slate-50 to-slate-100 rounded-2xl border border-slate-200 p-6 flex flex-col md:flex-row items-center justify-around gap-6 min-h-[340px] relative">
+
+                        <!-- Main Reaction Tube -->
+                        <div class="flex flex-col items-center">
+                            <div class="text-xs font-bold text-slate-600 mb-2" id="dropperLabel">បំពង់បន្តក់៖ K₂Cr₂O₇ + H₂SO₄</div>
+
+                            <!-- Dropper SVG -->
+                            <div class="relative h-24 w-16 flex flex-col items-center">
+                                <!-- Rubber bulb -->
+                                <div class="w-7 h-7 rounded-t-full bg-slate-700"></div>
+                                <div class="w-9 h-2 bg-slate-800 rounded"></div>
+                                <!-- Glass stem -->
+                                <div class="w-3.5 h-12 border-2 border-slate-400 bg-white/80 relative overflow-hidden flex items-end">
+                                    <div id="dropperLiquid" class="w-full h-9 bg-orange-500/90 transition-colors"></div>
+                                </div>
+                                <div class="w-1.5 h-2.5 border-x-2 border-b-2 border-slate-400"></div>
+
+                                <!-- Falling Drop -->
+                                <div id="fallingDrop" class="hidden w-3.5 h-3.5 rounded-full bg-orange-500 absolute top-20"></div>
+                            </div>
+
+                            <!-- Test Tube -->
+                            <div class="relative w-24 h-48 rounded-b-full border-4 border-slate-400 bg-white/70 shadow-inner overflow-hidden flex flex-col justify-end">
+                                <!-- Glass reflection -->
+                                <div class="absolute top-3 left-2.5 w-2 h-36 bg-white/60 rounded-full z-10 pointer-events-none"></div>
+
+                                <!-- Bubbles container -->
+                                <div id="tubeBubbles" class="hidden absolute inset-x-0 bottom-4 h-24 z-10 pointer-events-none">
+                                    <span class="bubble absolute left-5 bottom-2 w-2.5 h-2.5 rounded-full bg-white/70"></span>
+                                    <span class="bubble absolute left-10 bottom-4 w-2 h-2 rounded-full bg-white/70" style="animation-delay:0.4s"></span>
+                                    <span class="bubble absolute left-14 bottom-1 w-3 h-3 rounded-full bg-white/70" style="animation-delay:0.9s"></span>
+                                </div>
+
+                                <!-- Liquid inside test tube -->
+                                <div id="tubeLiquid" class="liquid-transition w-full h-24 bg-sky-100/70 border-t border-slate-300/60 flex items-center justify-center text-center px-1">
+                                    <span id="tubeLiquidText" class="text-[11px] font-bold text-slate-700 drop-shadow-sm">CH₃-CH₂OH<br>(គ្មានពណ៌)</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-2 text-xs font-bold text-slate-700" id="tubeBottomCaption">បំពង់សាក៖ អេតាណុល (ថ្នាក់ I)</div>
+                        </div>
+
+                        <!-- Secondary Verification Tests (Schiff's Reagent & Litmus/DNPH) -->
+                        <div class="w-full md:w-72 bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-vial-circle-check text-indigo-600"></i>
+                                <span>តេស្តពិនិត្យផលិតផលដែលកើត (ក្រោយប្រតិកម្ម)</span>
+                            </h4>
+
+                            <!-- Schiff Test Button & Indicator -->
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-700">១. តេស្តរ៉េអាក់ទីបស៊ីប (Schiff)</span>
+                                    <button onclick="runSchiffTest()" id="btnSchiffTest" disabled class="px-2.5 py-1 rounded-lg bg-pink-600 disabled:bg-slate-300 text-white text-xs font-bold transition">
+                                        ធ្វើតេស្តស៊ីប
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div id="schiffVial" class="w-8 h-12 rounded-b-full border-2 border-slate-400 bg-white overflow-hidden flex items-end">
+                                        <div id="schiffLiquid" class="w-full h-8 bg-slate-100 transition-colors duration-700"></div>
+                                    </div>
+                                    <p id="schiffResultText" class="text-xs text-slate-600 flex-1">
+                                        បន្តក់អុកស៊ីតករជាមុនសិន ទើបអាចធ្វើតេស្តរ៉េអាក់ទីបស៊ីបបាន។
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Blue Litmus / pH Test for Carboxylic Acid -->
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-700">២. តេស្តក្រដាសពណ៌ទឹកប៊ិច (អាស៊ីត)</span>
+                                    <button onclick="runAcidTest()" id="btnAcidTest" disabled class="px-2.5 py-1 rounded-lg bg-indigo-600 disabled:bg-slate-300 text-white text-xs font-bold transition">
+                                        ពិនិត្យអាស៊ីត
+                                    </button>
+                                </div>
+                                <p id="acidResultText" class="text-xs text-slate-600">
+                                    ពិនិត្យមើលថាតើផលិតផលជាអាស៊ីតកាបុកស៊ីលិច (R-COOH) ឬទេ។
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Explanation & Balanced Equation for the Lab -->
+                    <div id="labExplanationBox" class="p-4 rounded-xl bg-indigo-50/80 border border-indigo-200 space-y-2">
+                        <div class="font-bold text-xs sm:text-sm text-indigo-950 flex items-center justify-between">
+                            <span><i class="fa-solid fa-book-open mr-1.5"></i> សង្កេត និងបំណកស្រាយតាមសៀវភៅពុម្ព ៖</span>
+                            <button onclick="sendLabToGammaTab()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg font-semibold transition">
+                                មើលវិធានហ្គាម៉ានៃប្រតិកម្មនេះ <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                        <div id="labObservationContent" class="text-xs sm:text-sm text-slate-700 space-y-1.5 leading-relaxed">
+                            សូមជ្រើសរើសអាល់កុល និងចុចប៊ូតុង <strong>«បន្តក់អុកស៊ីតករ»</strong> ដើម្បីមើលការប្រែពណ៌ និងសមីការតុល្យការ។
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- TAB 3: COMPARE 3 CLASSES OF ALCOHOLS (TEXTBOOK PAGE 202)  -->
+        <!-- ========================================================= -->
+        <section id="sectionCompare" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-base sm:text-lg">
+                            ៣. ការប្រៀបធៀបអុកស៊ីតកម្មនៃអាល់កុលទាំងបីថ្នាក់ (អុកស៊ីតកម្មនៃ C₄H₉OH - ទំព័រ 202)
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                            រៀបបំពង់សាកបីដែលមានដាក់អាល់កុលរៀងគ្នាគឺ អាល់កុលថ្នាក់ I, II និង III រួចបន្តក់សូលុយស្យុងប៉ូតាស្យូមឌីក្រូម៉ាត (K₂Cr₂O₇) ដែលមានបន្ថែម H₂SO₄ ពីរ ឬ បីដំណក់ទៅក្នុងបំពង់សាកនីមួយៗ។
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 self-start md:self-auto">
+                        <button onclick="runAllThreeTubes()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs sm:text-sm shadow flex items-center gap-2 transition">
+                            <i class="fa-solid fa-droplet"></i>
+                            <span>បន្តក់ Cr₂O₇²⁻ / H⁺ ក្នុងបំពង់ទាំង ៣ ព្រមគ្នា</span>
+                        </button>
+                        <button onclick="resetAllThreeTubes()" class="px-3.5 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs sm:text-sm transition">
+                            <i class="fa-solid fa-rotate-left"></i> កំណត់ឡើងវិញ
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3 Test Tubes Grid matching Textbook Illustration -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+
+                    <!-- Tube 1: Butan-1-ol (Class I) -->
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 flex flex-col items-center text-center">
+                        <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold mb-2">បំពង់សាកទី ១ (អាល់កុលថ្នាក់ I)</span>
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base">ប៊ុយតាន-1-អុល</h3>
+                        <p class="text-xs text-slate-500 mb-4">CH₃-CH₂-CH₂-CH₂OH</p>
+
+                        <!-- Tube Visual -->
+                        <div class="relative w-20 h-44 rounded-b-full border-4 border-slate-400 bg-white overflow-hidden flex flex-col justify-end mb-4 shadow-inner">
+                            <div id="compLiquid1" class="liquid-transition w-full h-24 bg-sky-100/80 border-t border-slate-300 flex items-center justify-center px-1">
+                                <span id="compLabel1" class="text-[11px] font-bold text-slate-700">១<br>គ្មានពណ៌</span>
+                            </div>
+                        </div>
+
+                        <div id="compResult1" class="w-full text-left p-3.5 rounded-xl bg-white border border-slate-200 text-xs space-y-1.5">
+                            <div class="font-bold text-slate-700">ការសង្កេត៖</div>
+                            <p class="text-slate-600">ចុចប៊ូតុងបន្តក់ខាងលើដើម្បីមើលការប្រែពណ៌។</p>
+                        </div>
+                    </div>
+
+                    <!-- Tube 2: Butan-2-ol (Class II) -->
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 flex flex-col items-center text-center">
+                        <span class="px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-bold mb-2">បំពង់សាកទី ២ (អាល់កុលថ្នាក់ II)</span>
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base">ប៊ុយតាន-2-អុល</h3>
+                        <p class="text-xs text-slate-500 mb-4">CH₃-CHOH-CH₂-CH₃</p>
+
+                        <!-- Tube Visual -->
+                        <div class="relative w-20 h-44 rounded-b-full border-4 border-slate-400 bg-white overflow-hidden flex flex-col justify-end mb-4 shadow-inner">
+                            <div id="compLiquid2" class="liquid-transition w-full h-24 bg-sky-100/80 border-t border-slate-300 flex items-center justify-center px-1">
+                                <span id="compLabel2" class="text-[11px] font-bold text-slate-700">២<br>គ្មានពណ៌</span>
+                            </div>
+                        </div>
+
+                        <div id="compResult2" class="w-full text-left p-3.5 rounded-xl bg-white border border-slate-200 text-xs space-y-1.5">
+                            <div class="font-bold text-slate-700">ការសង្កេត៖</div>
+                            <p class="text-slate-600">ចុចប៊ូតុងបន្តក់ខាងលើដើម្បីមើលការប្រែពណ៌។</p>
+                        </div>
+                    </div>
+
+                    <!-- Tube 3: 2-methylpropan-2-ol (Class III) -->
+                    <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 flex flex-col items-center text-center">
+                        <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold mb-2">បំពង់សាកទី ៣ (អាល់កុលថ្នាក់ III)</span>
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base">2-មេទីលប្រូប៉ាន-2-អុល</h3>
+                        <p class="text-xs text-slate-500 mb-4">(CH₃)₃C-OH</p>
+
+                        <!-- Tube Visual -->
+                        <div class="relative w-20 h-44 rounded-b-full border-4 border-slate-400 bg-white overflow-hidden flex flex-col justify-end mb-4 shadow-inner">
+                            <div id="compLiquid3" class="liquid-transition w-full h-24 bg-sky-100/80 border-t border-slate-300 flex items-center justify-center px-1">
+                                <span id="compLabel3" class="text-[11px] font-bold text-slate-700">៣<br>គ្មានពណ៌</span>
+                            </div>
+                        </div>
+
+                        <div id="compResult3" class="w-full text-left p-3.5 rounded-xl bg-white border border-slate-200 text-xs space-y-1.5">
+                            <div class="font-bold text-slate-700">ការសង្កេត៖</div>
+                            <p class="text-slate-600">ចុចប៊ូតុងបន្តក់ខាងលើដើម្បីមើលការប្រែពណ៌។</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- MODAL FOR ADDING / EDITING CUSTOM REDOX COUPLES           -->
+    <!-- ========================================================= -->
+    <div id="customCoupleModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <h3 id="modalTitle" class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-flask text-emerald-600"></i>
+                    <span>បង្កើត ឬកែប្រែគូរេដុក (Ox / Red)</span>
+                </h3>
+                <button onclick="closeCustomModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                ទម្រង់កន្លះសមីការអេឡិចត្រូនិចទូទៅ៖
+                <strong class="text-indigo-700">a Ox + h H⁺ + n e⁻ ⇌ b Red + w H₂O</strong>
+            </p>
+
+            <input type="hidden" id="editCoupleId" value="">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs sm:text-sm">
+                <div class="sm:col-span-2">
+                    <label class="block font-bold text-slate-700 mb-1">ឈ្មោះសម្គាល់គូរេដុក (ឧ. អ៊ីយ៉ុងឌីក្រូម៉ាត / អ៊ីយ៉ុងក្រូម III)</label>
+                    <input id="inpNameKm" type="text" placeholder="ឧ. អ៊ីយ៉ុងដែក III / អ៊ីយ៉ុងដែក II" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">រូបមន្តអុកស៊ីតករ (Ox)</label>
+                    <input id="inpOxFormula" type="text" placeholder="ឧ. Cr₂O₇²⁻ ឬ MnO₄⁻" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">មេគុណមុខអុកស៊ីតករ (a)</label>
+                    <input id="inpOxCoeff" type="number" min="1" max="20" value="1" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">រូបមន្តរេដុករ (Red)</label>
+                    <input id="inpRedFormula" type="text" placeholder="ឧ. Cr³⁺ ឬ CH₃-CH₂OH" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">មេគុណមុខរេដុករ (b)</label>
+                    <input id="inpRedCoeff" type="number" min="1" max="20" value="1" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ប៉ូតង់ស្យែលស្តង់ដា E° (V)</label>
+                    <input id="inpE0" type="number" step="0.01" value="0.50" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ចំនួនអេឡិចត្រុងផ្លាស់ប្តូរ (n e⁻)</label>
+                    <input id="inpElectrons" type="number" min="1" max="20" value="2" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ចំនួនអ៊ីយ៉ុង H⁺ (ផ្នែក Ox)</label>
+                    <input id="inpHPlus" type="number" min="0" max="30" value="0" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ចំនួនម៉ូលេគុលទឹក H₂O (ផ្នែក Red)</label>
+                    <input id="inpH2O" type="number" min="0" max="30" value="0" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ពណ៌របស់អុកស៊ីតករ (Ox)</label>
+                    <input id="inpOxColorName" type="text" placeholder="ឧ. ពណ៌លឿងទឹកក្រូច ឬ គ្មានពណ៌" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">ពណ៌របស់រេដុករ (Red)</label>
+                    <input id="inpRedColorName" type="text" placeholder="ឧ. ពណ៌បៃតង ឬ គ្មានពណ៌" class="w-full rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                <button onclick="closeCustomModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold">
+                    បោះបង់
+                </button>
+                <button onclick="saveCustomCouple()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow">
+                    <i class="fa-solid fa-check mr-1"></i> រក្សាទុកគូរេដុក
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // =========================================================================
+        // 1. PRESET REDOX COUPLES DATABASE (Matching Cambodian Grade 12 Textbook)
+        // =========================================================================
+        let redoxCouples = [
+            {
+                id: 'mno4',
+                nameKm: 'អ៊ីយ៉ុងពែម៉ង់កាណាត / អ៊ីយ៉ុងម៉ង់កាណែស II',
+                ox: 'MnO₄⁻',
+                oxCoeff: 1,
+                red: 'Mn²⁺',
+                redCoeff: 1,
+                e0: 1.51,
+                n: 5,
+                hPlus: 8,   // on Ox side
+                h2o: 4,     // on Red side
+                oxColorName: 'ពណ៌ស្វាយ',
+                redColorName: 'ពណ៌ស៊ីជម្ពូស្រាល (គ្មានពណ៌)',
+                oxBadgeBg: '#9333ea',
+                redBadgeBg: '#fbcfe8'
+            },
+            {
+                id: 'cr2o7',
+                nameKm: 'អ៊ីយ៉ុងឌីក្រូម៉ាត / អ៊ីយ៉ុងក្រូម III',
+                ox: 'Cr₂O₇²⁻',
+                oxCoeff: 1,
+                red: 'Cr³⁺',
+                redCoeff: 2,
+                e0: 1.33,
+                n: 6,
+                hPlus: 14,  // Cr2O7^2- + 14H+ + 6e- -> 2Cr3+ + 7H2O
+                h2o: 7,
+                oxColorName: 'ពណ៌លឿងទឹកក្រូច',
+                redColorName: 'ពណ៌បៃតង',
+                oxBadgeBg: '#f97316',
+                redBadgeBg: '#16a34a'
+            },
+            {
+                id: 'ethanal',
+                nameKm: 'អេតាណាល់ / អេតាណុល (អាល់កុលថ្នាក់ I)',
+                ox: 'CH₃CHO',
+                oxCoeff: 1,
+                red: 'CH₃-CH₂OH',
+                redCoeff: 1,
+                e0: 0.19,
+                n: 2,
+                hPlus: 2,   // CH3CHO + 2H+ + 2e- -> CH3-CH2OH
+                h2o: 0,
+                oxColorName: 'គ្មានពណ៌ (ឡើងពណ៌ផ្កាឈូកជាមួយរ៉េអាក់ទីបស៊ីប)',
+                redColorName: 'គ្មានពណ៌',
+                oxBadgeBg: '#ec4899',
+                redBadgeBg: '#e2e8f0'
+            },
+            {
+                id: 'ethanoic',
+                nameKm: 'អាស៊ីតអេតាណូអ៊ិច / អេតាណុល (អុកស៊ីតករលើស)',
+                ox: 'CH₃COOH',
+                oxCoeff: 1,
+                red: 'CH₃-CH₂OH',
+                redCoeff: 1,
+                e0: 0.03,
+                n: 4,
+                hPlus: 4,   // CH3COOH + 4H+ + 4e- -> CH3-CH2OH + H2O
+                h2o: -1,    // Negative h2o means 1 H2O is on the Reductant side (CH3-CH2OH + H2O -> CH3COOH + 4H+ + 4e-)
+                oxColorName: 'គ្មានពណ៌ (មិនប្ដូរពណ៌រ៉េអាក់ទីបស៊ីប)',
+                redColorName: 'គ្មានពណ៌',
+                oxBadgeBg: '#64748b',
+                redBadgeBg: '#e2e8f0'
+            },
+            {
+                id: 'butanal',
+                nameKm: 'ប៊ុយតាណាល់ / ប៊ុយតាន-1-អុល (អាល់កុលថ្នាក់ I)',
+                ox: 'CH₃-CH₂-CH₂-CHO',
+                oxCoeff: 1,
+                red: 'CH₃-CH₂-CH₂-CH₂OH',
+                redCoeff: 1,
+                e0: 0.18,
+                n: 2,
+                hPlus: 2,
+                h2o: 0,
+                oxColorName: 'គ្មានពណ៌ (ឡើងពណ៌ផ្កាឈូកជាមួយរ៉េអាក់ទីបស៊ីប)',
+                redColorName: 'គ្មានពណ៌',
+                oxBadgeBg: '#ec4899',
+                redBadgeBg: '#e2e8f0'
+            },
+            {
+                id: 'butanoic',
+                nameKm: 'អាស៊ីតប៊ុយតាណូអ៊ិច / ប៊ុយតាន-1-អុល (អុកស៊ីតករលើស)',
+                ox: 'CH₃-CH₂-CH₂-COOH',
+                oxCoeff: 1,
+                red: 'CH₃-CH₂-CH₂-CH₂OH',
+                redCoeff: 1,
+                e0: 0.04,
+                n: 4,
+                hPlus: 4,
+                h2o: -1,
+                oxColorName: 'គ្មានពណ៌ (អាស៊ីតកាបុកស៊ីលិច)',
+                redColorName: 'គ្មានពណ៌',
+                oxBadgeBg: '#64748b',
+                redBadgeBg: '#e2e8f0'
+            },
+            {
+                id: 'butanone',
+                nameKm: 'ប៊ុយតាណូន / ប៊ុយតាន-2-អុល (អាល់កុលថ្នាក់ II)',
+                ox: 'CH₃-CO-CH₂-CH₃',
+                oxCoeff: 1,
+                red: 'CH₃-CHOH-CH₂-CH₃',
+                redCoeff: 1,
+                e0: 0.15,
+                n: 2,
+                hPlus: 2,
+                h2o: 0,
+                oxColorName: 'គ្មានពណ៌ (សេតូន - មិនប្ដូរពណ៌រ៉េអាក់ទីបស៊ីប)',
+                redColorName: 'គ្មានពណ៌',
+                oxBadgeBg: '#0d9488',
+                redBadgeBg: '#e2e8f0'
+            },
+            {
+                id: 'fe3_fe2',
+                nameKm: 'អ៊ីយ៉ុងដែក III / អ៊ីយ៉ុងដែក II',
+                ox: 'Fe³⁺',
+                oxCoeff: 1,
+                red: 'Fe²⁺',
+                redCoeff: 1,
+                e0: 0.77,
+                n: 1,
+                hPlus: 0,
+                h2o: 0,
+                oxColorName: 'ពណ៌លឿងច្រេះ',
+                redColorName: 'ពណ៌បៃតងខ្ចី',
+                oxBadgeBg: '#d97706',
+                redBadgeBg: '#86efac'
+            },
+            {
+                id: 'cu2_cu',
+                nameKm: 'អ៊ីយ៉ុងទង់ដែង II / លោហៈទង់ដែង',
+                ox: 'Cu²⁺',
+                oxCoeff: 1,
+                red: 'Cu',
+                redCoeff: 1,
+                e0: 0.34,
+                n: 2,
+                hPlus: 0,
+                h2o: 0,
+                oxColorName: 'ពណ៌ខៀវ',
+                redColorName: 'ពណ៌ក្រហមដុំឥដ្ឋ',
+                oxBadgeBg: '#2563eb',
+                redBadgeBg: '#b45309'
+            },
+            {
+                id: 'zn2_zn',
+                nameKm: 'អ៊ីយ៉ុងស័ង្កសី II / លោហៈស័ង្កសី',
+                ox: 'Zn²⁺',
+                oxCoeff: 1,
+                red: 'Zn',
+                redCoeff: 1,
+                e0: -0.76,
+                n: 2,
+                hPlus: 0,
+                h2o: 0,
+                oxColorName: 'គ្មានពណ៌',
+                redColorName: 'លោហៈពណ៌ប្រផេះប្រាក់',
+                oxBadgeBg: '#94a3b8',
+                redBadgeBg: '#64748b'
+            }
+        ];
+
+        // State for Tab 1
+        let selectedId1 = 'cr2o7';
+        let selectedId2 = 'ethanal';
+        let balanceMode = 'auto'; // 'auto' or 'practice'
+
+        // State for Tab 2 (Virtual Lab)
+        let labState = {
+            alcohol: 'ethanol',     // 'ethanol', 'butan1ol', 'butan2ol', 'methylpropan2ol'
+            oxidant: 'cr2o7',       // 'cr2o7', 'mno4'
+            amount: 'deficit',      // 'deficit', 'excess'
+            reacted: false
+        };
+
+        // =========================================================================
+        // 2. HELPER MATH & CHEMISTRY FORMATTING FUNCTIONS
+        // =========================================================================
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a || 1;
+        }
+
+        function lcm(a, b) {
+            return Math.abs(a * b) / gcd(a, b);
+        }
+
+        // Format reduction half-equation: Ox + h H+ + n e- -> Red + w H2O
+        function formatReductionHalfEq(couple, multiplier = 1) {
+            const oxC = couple.oxCoeff * multiplier;
+            const redC = couple.redCoeff * multiplier;
+            const hC = couple.hPlus * multiplier;
+            const eC = couple.n * multiplier;
+            const wC = couple.h2o * multiplier; // if negative, H2O is on the Red side in oxidation, meaning on Ox side in reduction
+
+            let leftParts = [];
+            leftParts.push(`${oxC > 1 ? oxC : ''}${couple.ox}`);
+            if (wC < 0) {
+                const absW = Math.abs(wC);
+                leftParts.push(`${absW > 1 ? absW : ''}H₂O`);
+            }
+            if (hC > 0) {
+                leftParts.push(`${hC > 1 ? hC : ''}H⁺`);
+            }
+            leftParts.push(`${eC > 1 ? eC : ''}e⁻`);
+
+            let rightParts = [];
+            rightParts.push(`${redC > 1 ? redC : ''}${couple.red}`);
+            if (wC > 0) {
+                rightParts.push(`${wC > 1 ? wC : ''}H₂O`);
+            }
+
+            return `${leftParts.join(' + ')} ⟶ ${rightParts.join(' + ')}`;
+        }
+
+        // Format oxidation half-equation: Red + w H2O -> Ox + h H+ + n e-
+        function formatOxidationHalfEq(couple, multiplier = 1) {
+            const oxC = couple.oxCoeff * multiplier;
+            const redC = couple.redCoeff * multiplier;
+            const hC = couple.hPlus * multiplier;
+            const eC = couple.n * multiplier;
+            const wC = couple.h2o * multiplier;
+
+            let leftParts = [];
+            leftParts.push(`${redC > 1 ? redC : ''}${couple.red}`);
+            if (wC < 0) {
+                const absW = Math.abs(wC);
+                leftParts.push(`${absW > 1 ? absW : ''}H₂O`);
+            } else if (wC > 0) {
+                leftParts.push(`${wC > 1 ? wC : ''}H₂O`);
+            }
+
+            let rightParts = [];
+            rightParts.push(`${oxC > 1 ? oxC : ''}${couple.ox}`);
+            if (hC > 0) {
+                rightParts.push(`${hC > 1 ? hC : ''}H⁺`);
+            }
+            rightParts.push(`${eC > 1 ? eC : ''}e⁻`);
+
+            return `${leftParts.join(' + ')} ⟶ ${rightParts.join(' + ')}`;
+        }
+
+        // Compute complete balanced reaction data between topCouple (stronger oxidant) and bottomCouple (stronger reductant)
+        function computeBalancedReaction(topCouple, bottomCouple) {
+            const totalElectrons = lcm(topCouple.n, bottomCouple.n);
+            const multTop = totalElectrons / topCouple.n;       // Multiplier for reduction half-eq
+            const multBot = totalElectrons / bottomCouple.n;    // Multiplier for oxidation half-eq
+
+            // Coefficients of main species
+            const coeffReactantRed = bottomCouple.redCoeff * multBot;
+            const coeffReactantOx = topCouple.oxCoeff * multTop;
+            const coeffProductOx = bottomCouple.oxCoeff * multBot;
+            const coeffProductRed = topCouple.redCoeff * multTop;
+
+            // H+ balance:
+            // Top reduction consumes: topCouple.hPlus * multTop
+            // Bottom oxidation produces: bottomCouple.hPlus * multBot
+            const netHPlusLeft = (topCouple.hPlus * multTop) - (bottomCouple.hPlus * multBot);
+
+            // H2O balance:
+            // Top reduction produces: (topCouple.h2o > 0 ? topCouple.h2o : 0) * multTop
+            // Bottom oxidation consumes: (bottomCouple.h2o !== 0 ? Math.abs(bottomCouple.h2o) : 0) * multBot
+            const topWaterProduced = (topCouple.h2o > 0 ? topCouple.h2o : 0) * multTop;
+            const botWaterConsumed = (bottomCouple.h2o !== 0 ? Math.abs(bottomCouple.h2o) : 0) * multBot;
+            const netWaterRight = topWaterProduced - botWaterConsumed;
+
+            return {
+                totalElectrons,
+                multTop,
+                multBot,
+                coeffReactantRed,
+                coeffReactantOx,
+                coeffProductOx,
+                coeffProductRed,
+                netHPlusLeft,
+                netWaterRight
+            };
+        }
+
+        // =========================================================================
+        // 3. TAB NAVIGATION
+        // =========================================================================
+        function switchTab(tabName) {
+            const sections = {
+                gamma: document.getElementById('sectionGamma'),
+                lab: document.getElementById('sectionLab'),
+                compare: document.getElementById('sectionCompare')
+            };
+            const buttons = {
+                gamma: document.getElementById('tabBtnGamma'),
+                lab: document.getElementById('tabBtnLab'),
+                compare: document.getElementById('tabBtnCompare')
+            };
+
+            Object.keys(sections).forEach(k => {
+                if (k === tabName) {
+                    sections[k].classList.remove('hidden');
+                    buttons[k].className = "flex-1 md:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-amber-400 text-indigo-950 shadow";
+                } else {
+                    sections[k].classList.add('hidden');
+                    buttons[k].className = "flex-1 md:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 text-blue-100 hover:bg-indigo-800/60";
+                }
+            });
+        }
+
+        // =========================================================================
+        // 4. GAMMA RULE & EQUATION BALANCER RENDERING
+        // =========================================================================
+        function populateCoupleSelects() {
+            const sel1 = document.getElementById('selectCouple1');
+            const sel2 = document.getElementById('selectCouple2');
+            sel1.innerHTML = '';
+            sel2.innerHTML = '';
+
+            redoxCouples.forEach(c => {
+                const opt1 = document.createElement('option');
+                opt1.value = c.id;
+                opt1.textContent = `${c.ox} / ${c.red} (E° = ${c.e0.toFixed(2)} V) - ${c.nameKm}`;
+                if (c.id === selectedId1) opt1.selected = true;
+                sel1.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = c.id;
+                opt2.textContent = `${c.ox} / ${c.red} (E° = ${c.e0.toFixed(2)} V) - ${c.nameKm}`;
+                if (c.id === selectedId2) opt2.selected = true;
+                sel2.appendChild(opt2);
+            });
+        }
+
+        function onCoupleSelectionChange() {
+            selectedId1 = document.getElementById('selectCouple1').value;
+            selectedId2 = document.getElementById('selectCouple2').value;
+            renderGammaSimulator();
+        }
+
+        function loadScenario(id1, id2) {
+            selectedId1 = id1;
+            selectedId2 = id2;
+            populateCoupleSelects();
+            renderGammaSimulator();
+            switchTab('gamma');
+        }
+
+        function renderCoupleInfoCard(couple, containerId) {
+            const el = document.getElementById(containerId);
+            el.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500">គូរេដុក ៖</span>
+                    <span class="font-bold text-slate-800">${couple.ox} / ${couple.red}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500">ប៉ូតង់ស្យែលស្តង់ដា (E°) ៖</span>
+                    <span class="font-bold text-indigo-700">${couple.e0.toFixed(2)} V</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500">កន្លះសមីការ ៖</span>
+                    <span class="font-semibold text-slate-800 chem-font">${formatReductionHalfEq(couple, 1).replace('⟶', '⇌')}</span>
+                </div>
+                <div class="flex items-center justify-between pt-1 border-t border-slate-200/70">
+                    <span class="text-slate-500">ពណ៌ Ox → Red ៖</span>
+                    <span class="font-medium text-slate-700">${couple.oxColorName} → ${couple.redColorName}</span>
+                </div>
+            `;
+        }
+
+        function renderGammaSimulator() {
+            const c1 = redoxCouples.find(c => c.id === selectedId1) || redoxCouples[0];
+            const c2 = redoxCouples.find(c => c.id === selectedId2) || redoxCouples[2];
+
+            renderCoupleInfoCard(c1, 'infoCouple1');
+            renderCoupleInfoCard(c2, 'infoCouple2');
+
+            const svg = document.getElementById('gammaSvg');
+            const conclusionBox = document.getElementById('gammaConclusion');
+            const emfBadge = document.getElementById('emfBadge');
+
+            if (c1.id === c2.id) {
+                emfBadge.textContent = `ΔE° = 0.00 V (គូដូចគ្នា)`;
+                emfBadge.className = "px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold";
+                svg.innerHTML = `
+                    <text x="300" y="160" text-anchor="middle" fill="#64748b" font-size="16" font-weight="bold">
+                        សូមជ្រើសរើសគូរេដុកពីរផ្សេងគ្នាដើម្បីអនុវត្តវិធានហ្គាម៉ា (γ)
+                    </text>
+                `;
+                conclusionBox.innerHTML = `សូមជ្រើសរើសគូរេដុកទី ១ និងទី ២ ខុសគ្នា។`;
+                document.getElementById('equationWorkspace').innerHTML = '';
+                document.getElementById('colorObservationBar').innerHTML = '';
+                return;
+            }
+
+            // Sort by E0: higher E0 is topCouple, lower E0 is bottomCouple
+            const topCouple = c1.e0 >= c2.e0 ? c1 : c2;
+            const botCouple = c1.e0 >= c2.e0 ? c2 : c1;
+            const deltaE = (topCouple.e0 - botCouple.e0).toFixed(2);
+
+            emfBadge.textContent = `ΔE° = ${topCouple.e0.toFixed(2)} - (${botCouple.e0.toFixed(2)}) = ${deltaE} V`;
+            emfBadge.className = "px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold";
+
+            // Render Textbook-Accurate SVG Gamma Diagram
+            svg.innerHTML = `
+                <defs>
+                    <marker id="axisArrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                        <path d="M 0 10 L 5 0 L 10 10 z" fill="#1e293b"/>
+                    </marker>
+                    <marker id="gammaArrow" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto">
+                        <path d="M 0 1 L 9 5 L 0 9 z" fill="#dc2626"/>
+                    </marker>
+                </defs>
+
+                <!-- Background Card Frame similar to textbook box -->
+                <rect x="20" y="15" width="560" height="290" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+
+                <!-- Headers for Left (Oxidants) and Right (Reductants) -->
+                <text x="150" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="bold">អុកស៊ីតករ (Ox)</text>
+                <text x="300" y="38" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="bold">E° (V)</text>
+                <text x="450" y="42" text-anchor="middle" fill="#475569" font-size="13" font-weight="bold">រេដុករ (Red)</text>
+
+                <!-- Vertical Potential Axis -->
+                <line x1="300" y1="280" x2="300" y2="55" stroke="#1e293b" stroke-width="2.2" marker-end="url(#axisArrow)"/>
+
+                <!-- Top Couple Row (Stronger Oxidant) -->
+                <line x1="292" y1="105" x2="308" y2="105" stroke="#1e293b" stroke-width="2"/>
+                <rect x="55" y="80" width="175" height="46" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+                <text x="142" y="108" text-anchor="middle" fill="#1e3a8a" font-size="16" font-weight="bold">${topCouple.ox}</text>
+                <text x="142" y="72" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="bold">អុកស៊ីតករខ្លាំងជាង</text>
+
+                <rect x="262" y="92" width="76" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+                <text x="300" y="110" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="bold">${topCouple.e0.toFixed(2)}V</text>
+
+                <rect x="370" y="80" width="175" height="46" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+                <text x="457" y="108" text-anchor="middle" fill="#334155" font-size="16" font-weight="bold">${topCouple.red}</text>
+
+                <!-- Bottom Couple Row (Stronger Reductant) -->
+                <line x1="292" y1="235" x2="308" y2="235" stroke="#1e293b" stroke-width="2"/>
+                <rect x="55" y="210" width="175" height="46" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+                <text x="142" y="238" text-anchor="middle" fill="#334155" font-size="16" font-weight="bold">${botCouple.ox}</text>
+
+                <rect x="262" y="222" width="76" height="26" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+                <text x="300" y="240" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="bold">${botCouple.e0.toFixed(2)}V</text>
+
+                <rect x="370" y="210" width="175" height="46" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="457" y="238" text-anchor="middle" fill="#92400e" font-size="16" font-weight="bold">${botCouple.red}</text>
+                <text x="457" y="274" text-anchor="middle" fill="#d97706" font-size="11" font-weight="bold">រេដុករខ្លាំងជាង</text>
+
+                <!-- Gamma (γ) Loop Path matching Textbook Diagram -->
+                <path class="gamma-path"
+                      d="M 232 105 C 295 110, 325 220, 368 232 C 315 245, 255 245, 232 232 C 250 185, 315 130, 365 108"
+                      fill="none" stroke="#dc2626" stroke-width="3" marker-end="url(#gammaArrow)"/>
+
+                <!-- Gamma Label Badge -->
+                <circle cx="300" cy="170" r="16" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+                <text x="300" y="176" text-anchor="middle" fill="#dc2626" font-size="18" font-weight="bold">γ</text>
+            `;
+
+            // Render Textbook-Style Conclusion Text
+            conclusionBox.innerHTML = `
+                <div class="font-bold text-indigo-950 mb-1">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> បំណកស្រាយតាមវិធានហ្គាម៉ា (γ) ៖
+                </div>
+                ដោយប្រៀបធៀបតម្លៃប៉ូតង់ស្យែលនៃគូ <strong>(${topCouple.ox} / ${topCouple.red}, E° = ${topCouple.e0.toFixed(2)} V)</strong>
+                និងគូ <strong>(${botCouple.ox} / ${botCouple.red}, E° = ${botCouple.e0.toFixed(2)} V)</strong>
+                យើងសន្និដ្ឋានថា <strong>${botCouple.red}</strong> រងអុកស៊ីតកម្មជា <strong>${botCouple.ox}</strong>
+                ដោយអុកស៊ីតករ <strong>${topCouple.ox}</strong> (ដែលរងរេដុកម្មជា <strong>${topCouple.red}</strong>)។
+            `;
+
+            renderEquationBalancingArea(topCouple, botCouple);
+        }
+
+        function setBalanceMode(mode) {
+            balanceMode = mode;
+            const btnAuto = document.getElementById('btnAutoBalance');
+            const btnPractice = document.getElementById('btnPracticeBalance');
+
+            if (mode === 'auto') {
+                btnAuto.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm transition";
+                btnPractice.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200 transition";
+            } else {
+                btnPractice.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-sm transition";
+                btnAuto.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200 transition";
+            }
+            renderGammaSimulator();
+        }
+
+        function renderEquationBalancingArea(topCouple, botCouple) {
+            const workspace = document.getElementById('equationWorkspace');
+            const colorBar = document.getElementById('colorObservationBar');
+            const bal = computeBalancedReaction(topCouple, botCouple);
+
+            // Build overall equation string for auto mode
+            let leftTerms = [];
+            leftTerms.push(`${bal.coeffReactantRed > 1 ? bal.coeffReactantRed : ''}${botCouple.red}`);
+            leftTerms.push(`${bal.coeffReactantOx > 1 ? bal.coeffReactantOx : ''}${topCouple.ox}`);
+            if (bal.netHPlusLeft > 0) {
+                leftTerms.push(`${bal.netHPlusLeft > 1 ? bal.netHPlusLeft : ''}H⁺`);
+            }
+            if (bal.netWaterRight < 0) {
+                const absW = Math.abs(bal.netWaterRight);
+                leftTerms.push(`${absW > 1 ? absW : ''}H₂O`);
+            }
+
+            let rightTerms = [];
+            rightTerms.push(`${bal.coeffProductOx > 1 ? bal.coeffProductOx : ''}${botCouple.ox}`);
+            rightTerms.push(`${bal.coeffProductRed > 1 ? bal.coeffProductRed : ''}${topCouple.red}`);
+            if (bal.netHPlusLeft < 0) {
+                const absH = Math.abs(bal.netHPlusLeft);
+                rightTerms.push(`${absH > 1 ? absH : ''}H⁺`);
+            }
+            if (bal.netWaterRight > 0) {
+                rightTerms.push(`${bal.netWaterRight > 1 ? bal.netWaterRight : ''}H₂O`);
+            }
+
+            if (balanceMode === 'auto') {
+                workspace.innerHTML = `
+                    <div class="bg-slate-50 rounded-2xl p-4 sm:p-6 border border-slate-200 space-y-4 overflow-x-auto">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">កន្លះសមីការអេឡិចត្រូនិច និងមេគុណតុល្យការអេឡិចត្រុង (បម្លែងអេឡិចត្រុងសរុប = ${bal.totalElectrons}e⁻) ៖</div>
+
+                        <!-- Half Equations Table like Textbook -->
+                        <div class="min-w-[520px] space-y-2.5 font-semibold text-sm sm:text-base text-slate-800 chem-font">
+                            <div class="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800 mr-2">រេដុកម្ម</span>
+                                    <span>${formatReductionHalfEq(topCouple, 1)}</span>
+                                </div>
+                                <div class="pl-4 border-l-2 border-slate-400 font-bold text-indigo-700">
+                                    × ${bal.multTop}
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl border border-slate-200">
+                                <div>
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 mr-2">អុកស៊ីតកម្ម</span>
+                                    <span>${formatOxidationHalfEq(botCouple, 1)}</span>
+                                </div>
+                                <div class="pl-4 border-l-2 border-slate-400 font-bold text-indigo-700">
+                                    × ${bal.multBot}
+                                </div>
+                            </div>
+
+                            <!-- Horizontal Dividing Line as in Textbook -->
+                            <div class="border-b-2 border-slate-800 pt-1"></div>
+
+                            <!-- Overall Balanced Equation -->
+                            <div class="pt-2 flex flex-col sm:flex-row sm:items-center gap-2 bg-emerald-50/90 border border-emerald-200 p-4 rounded-xl">
+                                <span class="text-xs sm:text-sm font-bold text-emerald-900 shrink-0">សមីការតុល្យការ ៖</span>
+                                <div class="text-base sm:text-lg font-bold text-emerald-950 tracking-wide">
+                                    ${leftTerms.join(' + ')} ⟶ ${rightTerms.join(' + ')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Practice Mode: Let student fill in multipliers & coefficients
+                workspace.innerHTML = `
+                    <div class="bg-amber-50/60 rounded-2xl p-4 sm:p-6 border border-amber-200 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs sm:text-sm font-bold text-amber-900">
+                                <i class="fa-solid fa-pencil mr-1"></i> ចូរបំពេញមេគុណក្នុងប្រអប់ខាងក្រោមដើម្បីថ្លឹងសមីការ ៖
+                            </span>
+                            <button onclick="fillCorrectPracticeAnswers()" class="text-xs text-indigo-700 hover:underline font-bold">
+                                បង្ហាញចម្លើយត្រឹមត្រូវ
+                            </button>
+                        </div>
+
+                        <div class="space-y-3 text-sm sm:text-base font-semibold text-slate-800 chem-font">
+                            <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-3.5 rounded-xl border border-slate-200">
+                                <span>កន្លះសមីការរេដុកម្ម៖ ${formatReductionHalfEq(topCouple, 1)}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-indigo-700 font-bold">×</span>
+                                    <input id="pracMultTop" type="number" min="1" max="20" placeholder="?" class="w-16 text-center rounded-lg border-2 border-indigo-300 px-2 py-1 font-bold text-indigo-900 focus:outline-none focus:border-indigo-600">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-3.5 rounded-xl border border-slate-200">
+                                <span>កន្លះសមីការអុកស៊ីតកម្ម៖ ${formatOxidationHalfEq(botCouple, 1)}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-indigo-700 font-bold">×</span>
+                                    <input id="pracMultBot" type="number" min="1" max="20" placeholder="?" class="w-16 text-center rounded-lg border-2 border-indigo-300 px-2 py-1 font-bold text-indigo-900 focus:outline-none focus:border-indigo-600">
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-white border border-slate-200 space-y-3">
+                                <div class="text-xs font-bold text-slate-500">សមីការតុល្យការ (បំពេញមេគុណមុខអង្គធាតុនីមួយៗ) ៖</div>
+                                <div class="flex flex-wrap items-center gap-2 text-sm sm:text-base">
+                                    <input id="pracCoeffRed1" type="number" min="1" placeholder="?" class="w-14 text-center rounded-lg border-2 border-slate-300 py-1 font-bold">
+                                    <span>${botCouple.red} +</span>
+
+                                    <input id="pracCoeffOx1" type="number" min="1" placeholder="?" class="w-14 text-center rounded-lg border-2 border-slate-300 py-1 font-bold">
+                                    <span>${topCouple.ox}</span>
+
+                                    ${bal.netHPlusLeft > 0 ? `
+                                        <span>+</span>
+                                        <input id="pracCoeffH" type="number" min="1" placeholder="?" class="w-14 text-center rounded-lg border-2 border-slate-300 py-1 font-bold">
+                                        <span>H⁺</span>
+                                    ` : ''}
+
+                                    <span class="mx-1 font-bold text-indigo-700">⟶</span>
+
+                                    <input id="pracCoeffOx2" type="number" min="1" placeholder="?" class="w-14 text-center rounded-lg border-2 border-slate-300 py-1 font-bold">
+                                    <span>${botCouple.ox} +</span>
+
+                                    <input id="pracCoeffRed2" type="number" min="1" placeholder="?" class="w-14 text-center rounded-lg border-2 border-slate-300 py-1 font-bold">
+                                    <span>${topCouple.red}</span>
+
+                                    ${bal.netWaterRight > 0 ? `
+                                        <span>+</span>
+                                        <input id="pracCoeffW" type="number" min="1" placeholder="?" class="w-14 text-center rounded-lg border-2 border-slate-300 py-1 font-bold">
+                                        <span>H₂O</span>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-3 pt-1">
+                                <button onclick="checkPracticeAnswer()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold shadow">
+                                    <i class="fa-solid fa-circle-check mr-1"></i> ពិនិត្យចម្លើយ
+                                </button>
+                                <div id="practiceFeedback" class="text-xs sm:text-sm font-bold"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Color Observation Summary
+            colorBar.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center -space-x-2">
+                        <span class="w-8 h-8 rounded-full border-2 border-white shadow" style="background-color: ${topCouple.oxBadgeBg}"></span>
+                        <span class="w-8 h-8 rounded-full border-2 border-white shadow" style="background-color: ${topCouple.redBadgeBg}"></span>
+                    </div>
+                    <div class="text-xs sm:text-sm">
+                        <span class="font-bold text-slate-800">ការសង្កេតពណ៌ក្នុងពេលប្រតិកម្ម៖</span>
+                        <span class="text-slate-600">
+                            ពណ៌របស់អុកស៊ីតករ <strong>${topCouple.ox} (${topCouple.oxColorName})</strong> បានបាត់ ហើយលេចចេញនូវពណ៌របស់ <strong>${topCouple.red} (${topCouple.redColorName})</strong>។
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkPracticeAnswer() {
+            const c1 = redoxCouples.find(c => c.id === selectedId1);
+            const c2 = redoxCouples.find(c => c.id === selectedId2);
+            const topCouple = c1.e0 >= c2.e0 ? c1 : c2;
+            const botCouple = c1.e0 >= c2.e0 ? c2 : c1;
+            const bal = computeBalancedReaction(topCouple, botCouple);
+
+            const mTop = parseInt(document.getElementById('pracMultTop')?.value);
+            const mBot = parseInt(document.getElementById('pracMultBot')?.value);
+            const cRed1 = parseInt(document.getElementById('pracCoeffRed1')?.value);
+            const cOx1 = parseInt(document.getElementById('pracCoeffOx1')?.value);
+            const cOx2 = parseInt(document.getElementById('pracCoeffOx2')?.value);
+            const cRed2 = parseInt(document.getElementById('pracCoeffRed2')?.value);
+
+            let hOk = true;
+            if (bal.netHPlusLeft > 0) {
+                const cH = parseInt(document.getElementById('pracCoeffH')?.value);
+                hOk = (cH === bal.netHPlusLeft);
+            }
+            let wOk = true;
+            if (bal.netWaterRight > 0) {
+                const cW = parseInt(document.getElementById('pracCoeffW')?.value);
+                wOk = (cW === bal.netWaterRight);
+            }
+
+            const feedback = document.getElementById('practiceFeedback');
+            if (
+                mTop === bal.multTop &&
+                mBot === bal.multBot &&
+                cRed1 === bal.coeffReactantRed &&
+                cOx1 === bal.coeffReactantOx &&
+                cOx2 === bal.coeffProductOx &&
+                cRed2 === bal.coeffProductRed &&
+                hOk && wOk
+            ) {
+                feedback.className = "text-xs sm:text-sm font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-lg";
+                feedback.innerHTML = `<i class="fa-solid fa-trophy mr-1"></i> អបអរសាទរ! អ្នកបានថ្លឹងសមីការត្រឹមត្រូវទាំងស្រុង!`;
+            } else {
+                feedback.className = "text-xs sm:text-sm font-bold text-rose-700 bg-rose-100 px-3 py-1.5 rounded-lg";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i> មេគុណខ្លះមិនទាន់ត្រឹមត្រូវទេ សូមពិនិត្យចំនួនអេឡិចត្រុង និងអ៊ីយ៉ុង H⁺ ឡើងវិញ!`;
+            }
+        }
+
+        function fillCorrectPracticeAnswers() {
+            const c1 = redoxCouples.find(c => c.id === selectedId1);
+            const c2 = redoxCouples.find(c => c.id === selectedId2);
+            const topCouple = c1.e0 >= c2.e0 ? c1 : c2;
+            const botCouple = c1.e0 >= c2.e0 ? c2 : c1;
+            const bal = computeBalancedReaction(topCouple, botCouple);
+
+            if (document.getElementById('pracMultTop')) document.getElementById('pracMultTop').value = bal.multTop;
+            if (document.getElementById('pracMultBot')) document.getElementById('pracMultBot').value = bal.multBot;
+            if (document.getElementById('pracCoeffRed1')) document.getElementById('pracCoeffRed1').value = bal.coeffReactantRed;
+            if (document.getElementById('pracCoeffOx1')) document.getElementById('pracCoeffOx1').value = bal.coeffReactantOx;
+            if (document.getElementById('pracCoeffOx2')) document.getElementById('pracCoeffOx2').value = bal.coeffProductOx;
+            if (document.getElementById('pracCoeffRed2')) document.getElementById('pracCoeffRed2').value = bal.coeffProductRed;
+            if (document.getElementById('pracCoeffH')) document.getElementById('pracCoeffH').value = bal.netHPlusLeft;
+            if (document.getElementById('pracCoeffW')) document.getElementById('pracCoeffW').value = bal.netWaterRight;
+            checkPracticeAnswer();
+        }
+
+        // =========================================================================
+        // 5. CUSTOM REDOX COUPLE EDITOR MODAL
+        // =========================================================================
+        function openCustomModal(coupleToEdit = null) {
+            const modal = document.getElementById('customCoupleModal');
+            modal.classList.remove('hidden');
+
+            if (coupleToEdit) {
+                document.getElementById('editCoupleId').value = coupleToEdit.id;
+                document.getElementById('inpNameKm').value = coupleToEdit.nameKm;
+                document.getElementById('inpOxFormula').value = coupleToEdit.ox;
+                document.getElementById('inpOxCoeff').value = coupleToEdit.oxCoeff;
+                document.getElementById('inpRedFormula').value = coupleToEdit.red;
+                document.getElementById('inpRedCoeff').value = coupleToEdit.redCoeff;
+                document.getElementById('inpE0').value = coupleToEdit.e0;
+                document.getElementById('inpElectrons').value = coupleToEdit.n;
+                document.getElementById('inpHPlus').value = coupleToEdit.hPlus;
+                document.getElementById('inpH2O').value = coupleToEdit.h2o;
+                document.getElementById('inpOxColorName').value = coupleToEdit.oxColorName;
+                document.getElementById('inpRedColorName').value = coupleToEdit.redColorName;
+            } else {
+                document.getElementById('editCoupleId').value = '';
+                document.getElementById('inpNameKm').value = 'គូរេដុកថ្មីរបស់សិស្ស';
+                document.getElementById('inpOxFormula').value = 'Ag⁺';
+                document.getElementById('inpOxCoeff').value = 1;
+                document.getElementById('inpRedFormula').value = 'Ag';
+                document.getElementById('inpRedCoeff').value = 1;
+                document.getElementById('inpE0').value = 0.80;
+                document.getElementById('inpElectrons').value = 1;
+                document.getElementById('inpHPlus').value = 0;
+                document.getElementById('inpH2O').value = 0;
+                document.getElementById('inpOxColorName').value = 'គ្មានពណ៌';
+                document.getElementById('inpRedColorName').value = 'កករពណ៌ប្រាក់';
+            }
+        }
+
+        function editSelectedCouple(slotNumber) {
+            const targetId = slotNumber === 1 ? selectedId1 : selectedId2;
+            const couple = redoxCouples.find(c => c.id === targetId);
+            if (couple) openCustomModal(couple);
+        }
+
+        function closeCustomModal() {
+            document.getElementById('customCoupleModal').classList.add('hidden');
+        }
+
+        function saveCustomCouple() {
+            const editId = document.getElementById('editCoupleId').value;
+            const nameKm = document.getElementById('inpNameKm').value.trim() || 'គូរេដុកកែប្រែថ្មី';
+            const ox = document.getElementById('inpOxFormula').value.trim() || 'Ox';
+            const oxCoeff = Math.max(1, parseInt(document.getElementById('inpOxCoeff').value) || 1);
+            const red = document.getElementById('inpRedFormula').value.trim() || 'Red';
+            const redCoeff = Math.max(1, parseInt(document.getElementById('inpRedCoeff').value) || 1);
+            const e0 = parseFloat(document.getElementById('inpE0').value) || 0.0;
+            const n = Math.max(1, parseInt(document.getElementById('inpElectrons').value) || 1);
+            const hPlus = Math.max(0, parseInt(document.getElementById('inpHPlus').value) || 0);
+            const h2o = parseInt(document.getElementById('inpH2O').value) || 0;
+            const oxColorName = document.getElementById('inpOxColorName').value.trim() || 'គ្មានពណ៌';
+            const redColorName = document.getElementById('inpRedColorName').value.trim() || 'គ្មានពណ៌';
+
+            if (editId) {
+                const idx = redoxCouples.findIndex(c => c.id === editId);
+                if (idx !== -1) {
+                    redoxCouples[idx] = {
+                        ...redoxCouples[idx],
+                        nameKm, ox, oxCoeff, red, redCoeff, e0, n, hPlus, h2o, oxColorName, redColorName
+                    };
+                }
+            } else {
+                const newId = 'custom_' + Date.now();
+                redoxCouples.push({
+                    id: newId,
+                    nameKm, ox, oxCoeff, red, redCoeff, e0, n, hPlus, h2o,
+                    oxColorName, redColorName,
+                    oxBadgeBg: '#6366f1',
+                    redBadgeBg: '#cbd5e1'
+                });
+                selectedId2 = newId;
+            }
+
+            populateCoupleSelects();
+            renderGammaSimulator();
+            closeCustomModal();
+        }
+
+
+        // =========================================================================
+        // 6. TAB 2: VIRTUAL LAB - ALCOHOL OXIDATION LOGIC
+        // =========================================================================
+        const alcoholMeta = {
+            ethanol: {
+                nameKm: 'អេតាណុល (ថ្នាក់ I)',
+                formula: 'CH₃-CH₂OH',
+                classNum: 1,
+                deficitCoupleId: 'ethanal',
+                excessCoupleId: 'ethanoic',
+                aldehydeName: 'អេតាណាល់ (CH₃CHO)',
+                acidName: 'អាស៊ីតអេតាណូអ៊ិច (CH₃COOH)'
+            },
+            butan1ol: {
+                nameKm: 'ប៊ុយតាន-1-អុល (ថ្នាក់ I)',
+                formula: 'CH₃-CH₂-CH₂-CH₂OH',
+                classNum: 1,
+                deficitCoupleId: 'butanal',
+                excessCoupleId: 'butanoic',
+                aldehydeName: 'ប៊ុយតាណាល់ (CH₃-CH₂-CH₂-CHO)',
+                acidName: 'អាស៊ីតប៊ុយតាណូអ៊ិច (CH₃-CH₂-CH₂-COOH)'
+            },
+            butan2ol: {
+                nameKm: 'ប៊ុយតាន-2-អុល (ថ្នាក់ II)',
+                formula: 'CH₃-CHOH-CH₂-CH₃',
+                classNum: 2,
+                deficitCoupleId: 'butanone',
+                excessCoupleId: 'butanone',
+                ketoneName: 'ប៊ុយតាណូន (CH₃-CO-CH₂-CH₃)'
+            },
+            methylpropan2ol: {
+                nameKm: '2-មេទីលប្រូប៉ាន-2-អុល (ថ្នាក់ III)',
+                formula: '(CH₃)₃C-OH',
+                classNum: 3
+            }
+        };
+
+        function selectLabAlcohol(alcKey) {
+            labState.alcohol = alcKey;
+            ['ethanol', 'butan1ol', 'butan2ol', 'methylpropan2ol'].forEach(k => {
+                const btn = document.getElementById('alcBtn_' + k);
+                if (k === alcKey) {
+                    btn.className = "alc-btn text-left p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50/70 transition flex items-center justify-between";
+                } else {
+                    btn.className = "alc-btn text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition flex items-center justify-between";
+                }
+            });
+            resetLabTube();
+        }
+
+        function selectLabOxidant(oxKey) {
+            labState.oxidant = oxKey;
+            const btnCr = document.getElementById('oxBtn_cr2o7');
+            const btnMn = document.getElementById('oxBtn_mno4');
+            const dropperLiquid = document.getElementById('dropperLiquid');
+            const fallingDrop = document.getElementById('fallingDrop');
+            const dropperLabel = document.getElementById('dropperLabel');
+
+            if (oxKey === 'cr2o7') {
+                btnCr.className = "p-3 rounded-xl border-2 border-amber-500 bg-amber-50 text-left transition";
+                btnMn.className = "p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition";
+                dropperLiquid.className = "w-full h-9 bg-orange-500/90 transition-colors";
+                fallingDrop.className = "hidden w-3.5 h-3.5 rounded-full bg-orange-500 absolute top-20";
+                dropperLabel.textContent = "បំពង់បន្តក់៖ K₂Cr₂O₇ + H₂SO₄ (ពណ៌លឿងទឹកក្រូច)";
+            } else {
+                btnMn.className = "p-3 rounded-xl border-2 border-purple-600 bg-purple-50 text-left transition";
+                btnCr.className = "p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition";
+                dropperLiquid.className = "w-full h-9 bg-purple-600/90 transition-colors";
+                fallingDrop.className = "hidden w-3.5 h-3.5 rounded-full bg-purple-600 absolute top-20";
+                dropperLabel.textContent = "បំពង់បន្តក់៖ KMnO₄ + H₂SO₄ (ពណ៌ស្វាយ)";
+            }
+            resetLabTube();
+        }
+
+        function selectLabAmount(amtKey) {
+            labState.amount = amtKey;
+            const btnDef = document.getElementById('amtBtn_deficit');
+            const btnExc = document.getElementById('amtBtn_excess');
+            if (amtKey === 'deficit') {
+                btnDef.className = "p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-left transition";
+                btnExc.className = "p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition";
+            } else {
+                btnExc.className = "p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 text-left transition";
+                btnDef.className = "p-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition";
+            }
+            resetLabTube();
+        }
+
+        function resetLabTube() {
+            labState.reacted = false;
+            const meta = alcoholMeta[labState.alcohol];
+            const tubeLiquid = document.getElementById('tubeLiquid');
+            const tubeLiquidText = document.getElementById('tubeLiquidText');
+            const tubeBottomCaption = document.getElementById('tubeBottomCaption');
+            const statusBadge = document.getElementById('labStatusBadge');
+
+            tubeLiquid.className = "liquid-transition w-full h-24 bg-sky-100/70 border-t border-slate-300/60 flex items-center justify-center text-center px-1";
+            tubeLiquidText.className = "text-[11px] font-bold text-slate-700";
+            tubeLiquidText.innerHTML = `${meta.formula}<br>(គ្មានពណ៌)`;
+            tubeBottomCaption.textContent = `បំពង់សាក៖ ${meta.nameKm}`;
+            document.getElementById('tubeBubbles').classList.add('hidden');
+
+            statusBadge.textContent = "រង់ចាំការបន្តក់សូលុយស្យុង...";
+            statusBadge.className = "px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold";
+
+            // Reset secondary tests
+            document.getElementById('btnSchiffTest').disabled = true;
+            document.getElementById('btnAcidTest').disabled = true;
+            document.getElementById('schiffLiquid').className = "w-full h-8 bg-slate-100 transition-colors duration-700";
+            document.getElementById('schiffResultText').textContent = "បន្តក់អុកស៊ីតករជាមុនសិន ទើបអាចធ្វើតេស្តរ៉េអាក់ទីបស៊ីបបាន។";
+            document.getElementById('acidResultText').textContent = "ពិនិត្យមើលថាតើផលិតផលជាអាស៊ីតកាបុកស៊ីលិច (R-COOH) ឬទេ។";
+
+            document.getElementById('labObservationContent').innerHTML = `
+                សូមចុចប៊ូតុង <strong>«បន្តក់អុកស៊ីតករ & ដុតកម្ដៅស្រាលៗ»</strong> ដើម្បីសង្កេតមើលការប្រែពណ៌នៃសូលុយស្យុង។
+            `;
+        }
+
+        function runLabDropExperiment() {
+            const fallingDrop = document.getElementById('fallingDrop');
+            fallingDrop.classList.remove('hidden', 'animate-drop');
+            void fallingDrop.offsetWidth; // trigger reflow
+            fallingDrop.classList.add('animate-drop');
+
+            setTimeout(() => {
+                applyLabReactionResult();
+            }, 600);
+        }
+
+        function applyLabReactionResult() {
+            labState.reacted = true;
+            const meta = alcoholMeta[labState.alcohol];
+            const isCr = labState.oxidant === 'cr2o7';
+            const isExcess = labState.amount === 'excess';
+
+            const tubeLiquid = document.getElementById('tubeLiquid');
+            const tubeLiquidText = document.getElementById('tubeLiquidText');
+            const statusBadge = document.getElementById('labStatusBadge');
+            const obsContent = document.getElementById('labObservationContent');
+
+            document.getElementById('btnSchiffTest').disabled = false;
+            document.getElementById('btnAcidTest').disabled = false;
+
+            if (meta.classNum === 3) {
+                // Tertiary Alcohol: NO REACTION! Keeps oxidant color (Orange for Cr2O7^2-, Purple for MnO4^-)
+                document.getElementById('tubeBubbles').classList.add('hidden');
+                if (isCr) {
+                    tubeLiquid.className = "liquid-transition w-full h-28 bg-orange-500/85 border-t border-orange-600 flex items-center justify-center text-center px-1";
+                    tubeLiquidText.className = "text-[11px] font-bold text-white";
+                    tubeLiquidText.innerHTML = `រក្សាពណ៌ទឹកក្រូច<br>Cr₂O₇²⁻ (គ្មានប្រតិកម្ម)`;
+                } else {
+                    tubeLiquid.className = "liquid-transition w-full h-28 bg-purple-600/85 border-t border-purple-700 flex items-center justify-center text-center px-1";
+                    tubeLiquidText.className = "text-[11px] font-bold text-white";
+                    tubeLiquidText.innerHTML = `រក្សាពណ៌ស្វាយ<br>MnO₄⁻ (គ្មានប្រតិកម្ម)`;
+                }
+
+                statusBadge.textContent = "គ្មានប្រតិកម្មអុកស៊ីតកម្មតាមសម្រួលទេ!";
+                statusBadge.className = "px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold";
+
+                obsContent.innerHTML = `
+                    <p>• <strong>សង្កេត៖</strong> សូលុយស្យុងរក្សាពណ៌របស់អុកស៊ីតករដដែល (${isCr ? 'ពណ៌លឿងទឹកក្រូចរបស់ Cr₂O₇²⁻' : 'ពណ៌ស្វាយរបស់ MnO₄⁻'})។</p>
+                    <p>• <strong>សន្និដ្ឋាន៖</strong> <strong>${meta.nameKm}</strong> ជាអាល់កុលថ្នាក់ III គ្មានអាតូមអ៊ីដ្រូសែនភ្ជាប់នឹងកាបូននាទី (C-OH) ទើបវា<strong>មិនរងអុកស៊ីតកម្មតាមសម្រួល</strong>ទេ។</p>
+                `;
+                return;
+            }
+
+            // Class I or Class II Alcohol -> Reaction occurs!
+            document.getElementById('tubeBubbles').classList.remove('hidden');
+
+            if (isCr) {
+                // Turns Green (Cr3+)
+                tubeLiquid.className = "liquid-transition w-full h-28 bg-emerald-600/85 border-t border-emerald-700 flex items-center justify-center text-center px-1";
+                tubeLiquidText.className = "text-[11px] font-bold text-white";
+                tubeLiquidText.innerHTML = `ពណ៌បៃតងនៃអ៊ីយ៉ុង Cr³⁺`;
+            } else {
+                // Turns pale pink / nearly colorless (Mn2+)
+                tubeLiquid.className = "liquid-transition w-full h-28 bg-pink-200/80 border-t border-pink-300 flex items-center justify-center text-center px-1";
+                tubeLiquidText.className = "text-[11px] font-bold text-pink-950";
+                tubeLiquidText.innerHTML = `ពណ៌ស៊ីជម្ពូស្រាលនៃ Mn²⁺`;
+            }
+
+            statusBadge.textContent = "ប្រតិកម្មអុកស៊ីតកម្មបានប្រព្រឹត្តទៅ!";
+            statusBadge.className = "px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold";
+
+            if (meta.classNum === 1) {
+                if (!isExcess) {
+                    obsContent.innerHTML = `
+                        <p>• <strong>សង្កេត៖</strong> ពណ៌${isCr ? 'លឿងទឹកក្រូចរបស់ Cr₂O₇²⁻ បានបាត់ ហើយលេចចេញនូវពណ៌បៃតងរបស់ Cr³⁺' : 'ស្វាយរបស់ MnO₄⁻ បានបាត់ ហើយលេចចេញពណ៌ស៊ីជម្ពូស្រាលរបស់ Mn²⁺'}។</p>
+                        <p>• <strong>ករណីអុកស៊ីតករបរិមាណល្មម៖</strong> អាល់កុលថ្នាក់ I (${meta.formula}) រងអុកស៊ីតកម្មបង្កើតបានជាអាល់ដេអ៊ីត <strong>${meta.aldehydeName}</strong> ដែលធ្វើឱ្យរ៉េអាក់ទីបស៊ីបឡើងពណ៌ផ្កាឈូក (កុលាប)។</p>
+                    `;
+                } else {
+                    obsContent.innerHTML = `
+                        <p>• <strong>សង្កេត៖</strong> ពណ៌${isCr ? 'លឿងទឹកក្រូចរបស់ Cr₂O₇²⁻ បានបាត់ ហើយលេចចេញនូវពណ៌បៃតងរបស់ Cr³⁺' : 'ស្វាយរបស់ MnO₄⁻ បានបាត់ ហើយលេចចេញពណ៌ស៊ីជម្ពូស្រាលរបស់ Mn²⁺'}។</p>
+                        <p>• <strong>ករណីអុកស៊ីតករបរិមាណលើស៖</strong> គេមិនឃើញកើតអាល់ដេអ៊ីតទេ គឺអាល់កុលថ្នាក់ I (${meta.formula}) ត្រូវបំលែងទាំងស្រុងជាអាស៊ីតកាបុកស៊ីលិច <strong>${meta.acidName}</strong> (មិនធ្វើឱ្យរ៉េអាក់ទីបស៊ីបឡើងពណ៌កុលាបទេ)។</p>
+                    `;
+                }
+            } else if (meta.classNum === 2) {
+                obsContent.innerHTML = `
+                    <p>• <strong>សង្កេត៖</strong> ពណ៌${isCr ? 'លឿងទឹកក្រូចរបស់ Cr₂O₇²⁻ បានបាត់ ហើយលេចចេញនូវពណ៌បៃតងរបស់ Cr³⁺' : 'ស្វាយរបស់ MnO₄⁻ បានបាត់ ហើយលេចចេញពណ៌ស៊ីជម្ពូស្រាលរបស់ Mn²⁺'}។</p>
+                    <p>• <strong>អាល់កុលថ្នាក់ II៖</strong> រងអុកស៊ីតកម្មបង្កើតបានជាសេតូន <strong>${meta.ketoneName}</strong> ដែលមិនធ្វើឱ្យរ៉េអាក់ទីបស៊ីបប្រែពណ៌ទេ។</p>
+                `;
+            }
+        }
+
+        function runSchiffTest() {
+            if (!labState.reacted) return;
+            const meta = alcoholMeta[labState.alcohol];
+            const schiffLiquid = document.getElementById('schiffLiquid');
+            const schiffText = document.getElementById('schiffResultText');
+
+            if (meta.classNum === 1 && labState.amount === 'deficit') {
+                // Aldehyde formed -> turns bright magenta/pink!
+                schiffLiquid.className = "w-full h-9 bg-pink-500 transition-colors duration-700";
+                schiffText.innerHTML = `<strong class="text-pink-700">ឡើងពណ៌កុលាប (ផ្កាឈូក)!</strong> បញ្ជាក់ថាមានវត្តមានអាល់ដេអ៊ីត (${meta.aldehydeName})។`;
+            } else if (meta.classNum === 1 && labState.amount === 'excess') {
+                schiffLiquid.className = "w-full h-9 bg-slate-200 transition-colors duration-700";
+                schiffText.innerHTML = `<strong class="text-slate-700">មិនឡើងពណ៌កុលាបទេ!</strong> ព្រោះអុកស៊ីតករលើសបានបំលែងអាល់កុលទាំងស្រុងទៅជាអាស៊ីត (${meta.acidName})។`;
+            } else if (meta.classNum === 2) {
+                schiffLiquid.className = "w-full h-9 bg-slate-200 transition-colors duration-700";
+                schiffText.innerHTML = `<strong class="text-slate-700">មិនឡើងពណ៌កុលាបទេ!</strong> ព្រោះផលិតផលជាសេតូន (${meta.ketoneName}) (មានតែប្រតិកម្មជាមួយ 2,4-DNPH)។`;
+            } else {
+                schiffLiquid.className = "w-full h-9 bg-slate-200 transition-colors duration-700";
+                schiffText.innerHTML = `<strong class="text-slate-700">គ្មានប្រតិកម្ម!</strong> អាល់កុលថ្នាក់ III មិនរងអុកស៊ីតកម្មទេ។`;
+            }
+        }
+
+        function runAcidTest() {
+            if (!labState.reacted) return;
+            const meta = alcoholMeta[labState.alcohol];
+            const acidText = document.getElementById('acidResultText');
+
+            if (meta.classNum === 1 && labState.amount === 'excess') {
+                acidText.innerHTML = `<span class="px-2 py-0.5 rounded bg-rose-500 text-white font-bold mr-1">ក្រដាសទឹកប៊ិចប្រែជាពណ៌ក្រហម!</span> បញ្ជាក់ថាផលិតផលជាអាស៊ីតកាបុកស៊ីលិច (${meta.acidName})។`;
+            } else {
+                acidText.innerHTML = `<span class="px-2 py-0.5 rounded bg-blue-600 text-white font-bold mr-1">មិនប្រែពណ៌ក្រហមទេ</span> ព្រោះគ្មានកកើតអាស៊ីតកាបុកស៊ីលិចទេ។`;
+            }
+        }
+
+        function sendLabToGammaTab() {
+            const meta = alcoholMeta[labState.alcohol];
+            if (meta.classNum === 3) {
+                loadScenario(labState.oxidant, 'ethanal');
+                return;
+            }
+            const targetCoupleId = labState.amount === 'deficit' ? meta.deficitCoupleId : meta.excessCoupleId;
+            loadScenario(labState.oxidant, targetCoupleId);
+        }
+
+
+        // =========================================================================
+        // 7. TAB 3: COMPARE ALL 3 CLASSES OF ALCOHOLS (TEXTBOOK PAGE 202)
+        // =========================================================================
+        function runAllThreeTubes() {
+            // Tube 1: Butan-1-ol -> Turns Green
+            const liq1 = document.getElementById('compLiquid1');
+            const lbl1 = document.getElementById('compLabel1');
+            const res1 = document.getElementById('compResult1');
+            liq1.className = "liquid-transition w-full h-28 bg-emerald-600 border-t border-emerald-700 flex items-center justify-center px-1";
+            lbl1.className = "text-[11px] font-bold text-white";
+            lbl1.innerHTML = "១<br>ពណ៌បៃតង (Cr³⁺)";
+            res1.innerHTML = `
+                <div class="font-bold text-emerald-800"><i class="fa-solid fa-check-circle mr-1"></i> បំពង់ទី ១ ប្រែជាពណ៌បៃតង៖</div>
+                <p class="text-slate-700">ប៊ុយតាន-1-អុល (ថ្នាក់ I) រងអុកស៊ីតកម្មឱ្យជា <strong>ប៊ុយតាណាល់</strong> (ធ្វើឱ្យរ៉េអាក់ទីបស៊ីបឡើងពណ៌កុលាប) និង <strong>អាស៊ីតប៊ុយតាណូអ៊ិច</strong>។</p>
+            `;
+
+            // Tube 2: Butan-2-ol -> Turns Green
+            const liq2 = document.getElementById('compLiquid2');
+            const lbl2 = document.getElementById('compLabel2');
+            const res2 = document.getElementById('compResult2');
+            liq2.className = "liquid-transition w-full h-28 bg-emerald-600 border-t border-emerald-700 flex items-center justify-center px-1";
+            lbl2.className = "text-[11px] font-bold text-white";
+            lbl2.innerHTML = "២<br>ពណ៌បៃតង (Cr³⁺)";
+            res2.innerHTML = `
+                <div class="font-bold text-emerald-800"><i class="fa-solid fa-check-circle mr-1"></i> បំពង់ទី ២ ប្រែជាពណ៌បៃតង៖</div>
+                <p class="text-slate-700">ប៊ុយតាន-2-អុល (ថ្នាក់ II) រងអុកស៊ីតកម្មឱ្យជាសេតូន គឺ <strong>ប៊ុយតាណូន</strong> (មិនធ្វើឱ្យរ៉េអាក់ទីបស៊ីបឡើងពណ៌កុលាបទេ)។</p>
+            `;
+
+            // Tube 3: 2-methylpropan-2-ol -> Remains Orange (No reaction)
+            const liq3 = document.getElementById('compLiquid3');
+            const lbl3 = document.getElementById('compLabel3');
+            const res3 = document.getElementById('compResult3');
+            liq3.className = "liquid-transition w-full h-28 bg-orange-500 border-t border-orange-600 flex items-center justify-center px-1";
+            lbl3.className = "text-[11px] font-bold text-white";
+            lbl3.innerHTML = "៣<br>រក្សាពណ៌ទឹកក្រូច";
+            res3.innerHTML = `
+                <div class="font-bold text-amber-800"><i class="fa-solid fa-xmark-circle mr-1"></i> បំពង់ទី ៣ មិនប្រែពណ៌ទេ៖</div>
+                <p class="text-slate-700">2-មេទីលប្រូប៉ាន-2-អុល (ថ្នាក់ III) <strong>មិនរងអុកស៊ីតកម្មតាមសម្រួលទេ</strong> ទើបសូលុយស្យុងរក្សាពណ៌ទឹកក្រូចនៃ Cr₂O₇²⁻។</p>
+            `;
+        }
+
+        function resetAllThreeTubes() {
+            [1, 2, 3].forEach(num => {
+                const liq = document.getElementById('compLiquid' + num);
+                const lbl = document.getElementById('compLabel' + num);
+                const res = document.getElementById('compResult' + num);
+                liq.className = "liquid-transition w-full h-24 bg-sky-100/80 border-t border-slate-300 flex items-center justify-center px-1";
+                lbl.className = "text-[11px] font-bold text-slate-700";
+                lbl.innerHTML = `${num}<br>គ្មានពណ៌`;
+                res.innerHTML = `
+                    <div class="font-bold text-slate-700">ការសង្កេត៖</div>
+                    <p class="text-slate-600">ចុចប៊ូតុងបន្តក់ខាងលើដើម្បីមើលការប្រែពណ៌។</p>
+                `;
+            });
+        }
+
+        // Initialize Simulator on Window Load
+        window.onload = function () {
+            populateCoupleSelects();
+            renderGammaSimulator();
+            resetLabTube();
+        };
+    </script>
+</body>
+</html>
